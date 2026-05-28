@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  displayName   String   @map("display_name")
+  avatarUrl     String?  @map("avatar_url")
+  role          String   @default("player") // 'player' | 'admin'
+  totalPoints   Int      @default(0) @map("total_points")
+  timezone      String   @default("UTC")
+  createdAt     DateTime @default(now()) @map("created_at")
+  isActive      Boolean  @default(true) @map("is_active")
+
+  predictions              Prediction[]
+  chips                    Chip[]
+  preTournamentPrediction  PreTournamentPrediction?
+  groupStandingPredictions GroupStandingPrediction[]
+  auditLogsAsAdmin         AuditLog[]               @relation("AdminAuditLogs")
+  auditLogsAsTarget        AuditLog[]               @relation("TargetAuditLogs")
+  feedEventsAsActor        ActivityFeedEvent[]       @relation("ActorFeedEvents")
+  feedEventsAsTarget       ActivityFeedEvent[]       @relation("TargetFeedEvents")
+  chipsTargeting           Chip[]                    @relation("ChipTarget")
+  inviteTokens             InviteToken[]
+
+  @@map("users")
+}
+
+model InviteToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  email     String?
+  usedBy    String?  @map("used_by")
+  usedAt    DateTime? @map("used_at")
+  createdBy String   @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  creator   User     @relation(fields: [createdBy], references: [id])
+
+  @@map("invite_tokens")
+}
+
+model Fixture {
+  id             Int      @id
+  matchDate      String   @map("match_date") // ISO date string
+  kickoffTimeUtc String   @map("kickoff_time_utc") // ISO datetime string
+  homeTeam       String   @map("home_team")
+  awayTeam       String   @map("away_team")
+  group          String   // 'A'-'L', 'R32', 'R16', 'QF', 'SF', '3P', 'FIN'
+  stage          String   // 'group', 'r32', 'r16', 'qf', 'sf', 'third_place', 'final'
+  venue          String
+  city           String
+  status         String   @default("upcoming") // 'upcoming', 'live', 'halftime', 'full_time'
+  homeScore      Int?     @map("home_score")
+  awayScore      Int?     @map("away_score")
+  totalGoals     Int?     @map("total_goals")
+  lockTimeUtc    String   @map("lock_time_utc") // ISO datetime string
+
+  predictions    Prediction[]
+  chips          Chip[]
+  feedEvents     ActivityFeedEvent[]
+
+  @@map("fixtures")
+}
+
+model Prediction {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  fixtureId       Int      @map("fixture_id")
+  homeScorePred   Int?     @map("home_score_pred")
+  awayScorePred   Int?     @map("away_score_pred")
+  submittedAt     DateTime @default(now()) @map("submitted_at")
+  lastEditedAt    DateTime? @map("last_edited_at")
+  isLocked        Boolean  @default(false) @map("is_locked")
+  pointsAwarded   Int?     @map("points_awarded")
+  scoringTier     String?  @map("scoring_tier") // 'exact', 'goal_diff', 'result', 'incorrect', 'auto_zero'
+  halftimeSubUsed Boolean  @default(false) @map("halftime_sub_used")
+
+  user    User    @relation(fields: [userId], references: [id])
+  fixture Fixture @relation(fields: [fixtureId], references: [id])
+
+  @@unique([userId, fixtureId])
+  @@map("predictions")
+}
+
+model Chip {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  type         String   // 'banker', 'rival_block', 'halftime_sub', 'goalfest'
+  status       String   @default("available") // 'available', 'burned'
+  fixtureId    Int?     @map("fixture_id")
+  burnedAt     DateTime? @map("burned_at")
+  targetUserId String?  @map("target_user_id")
+
+  user       User     @relation(fields: [userId], references: [id])
+  fixture    Fixture? @relation(fields: [fixtureId], references: [id])
+  targetUser User?    @relation("ChipTarget", fields: [targetUserId], references: [id])
+
+  @@map("chips")
+}
+
+model PreTournamentPrediction {
+  id                 String  @id @default(uuid())
+  userId             String  @unique @map("user_id")
+  goldenBootPlayer   String? @map("golden_boot_player")
+  mostAssistsPlayer  String? @map("most_assists_player")
+  goldenGlovePlayer  String? @map("golden_glove_player")
+  isLocked           Boolean @default(false) @map("is_locked")
+  pointsAwarded      Int?    @map("points_awarded")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("pre_tournament_predictions")
+}
+
+model GroupStandingPrediction {
+  id            String  @id @default(uuid())
+  userId        String  @map("user_id")
+  group         String  // 'A'-'L'
+  position1     String  @map("position_1")
+  position2     String  @map("position_2")
+  position3     String  @map("position_3")
+  position4     String  @map("position_4")
+  isLocked      Boolean @default(false) @map("is_locked")
+  pointsAwarded Int?    @map("points_awarded")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, group])
+  @@map("group_standing_predictions")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  adminId      String   @map("admin_id")
+  action       String
+  targetUserId String?  @map("target_user_id")
+  delta        Int?
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  admin      User  @relation("AdminAuditLogs", fields: [adminId], references: [id])
+  targetUser User? @relation("TargetAuditLogs", fields: [targetUserId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model ActivityFeedEvent {
+  id           String   @id @default(uuid())
+  eventType    String   @map("event_type") // 'chip_used', 'rival_block_reveal', 'match_locked', 'result_entered', 'manual_adjustment'
+  fixtureId    Int?     @map("fixture_id")
+  actorUserId  String?  @map("actor_user_id")
+  targetUserId String?  @map("target_user_id")
+  message      String
+  isVisible    Boolean  @default(true) @map("is_visible")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  fixture    Fixture? @relation(fields: [fixtureId], references: [id])
+  actorUser  User?    @relation("ActorFeedEvents", fields: [actorUserId], references: [id])
+  targetUser User?    @relation("TargetFeedEvents", fields: [targetUserId], references: [id])
+
+  @@map("activity_feed_events")
+}
+
+model SystemSetting {
+  key   String @id
+  value String
+
+  @@map("system_settings")
+}
