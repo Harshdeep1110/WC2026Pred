@@ -45,12 +45,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       awayScoreActual: awayScore,
     });
 
-    const userChips = chips.filter(c => c.userId === pred.userId);
-    const rivalBlock = chips.find(c => c.type === 'rival_block' && c.targetUserId === pred.userId);
+    const userChips = chips.filter((c: any) => c.userId === pred.userId);
+    const rivalBlock = chips.find((c: any) => c.type === 'rival_block' && c.targetUserId === pred.userId);
 
     const points = computeFinalPoints(tier, {
-      hasBanker: userChips.some(c => c.type === 'banker'),
-      hasGoalFest: userChips.some(c => c.type === 'goalfest'),
+      hasBanker: userChips.some((c: any) => c.type === 'banker'),
+      hasGoalFest: userChips.some((c: any) => c.type === 'goalfest'),
       halftimeSubUsed: pred.halftimeSubUsed,
       isRivalBlocked: !!rivalBlock,
       totalGoals,
