@@ -4,7 +4,9 @@ import prisma from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, displayName, inviteToken } = await req.json();
+    const body = await req.json();
+    const email = body.email?.toLowerCase();
+    const { password, displayName, inviteToken } = body;
 
     if (!email || !password || !displayName || !inviteToken) {
       return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
