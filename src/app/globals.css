@@ -157,6 +157,9 @@ a:hover { color: #33ff9f; }
 
 .card:hover { border-color: var(--border-active); box-shadow: var(--shadow-glow-green); }
 
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+
 .card-header {
   display: flex;
   align-items: center;
@@ -668,6 +671,8 @@ a:hover { color: #33ff9f; }
   .sidebar { 
     display: none; /* Hide sidebar completely on mobile, replace with bottom nav */
   }
+  .dashboard-grid { grid-template-columns: 1fr !important; }
+  .profile-grid { grid-template-columns: 1fr !important; }
   .main-content { padding: 12px; }
   .card { padding: 16px; border-radius: var(--radius-md); }
   .fixture-card { padding: 12px 8px; gap: 8px; }

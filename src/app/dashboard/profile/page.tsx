@@ -22,7 +22,7 @@ export default async function ProfilePage() {
         <SignOutButton className="btn btn-secondary btn-sm" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 24 }}>
+      <div className="profile-grid">
         {/* Profile card */}
         <div className="card" style={{ textAlign: 'center' }}>
           <div className="avatar avatar-lg" style={{ margin: '0 auto 16px' }}>

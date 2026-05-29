@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div className="dashboard-grid">
         {/* Upcoming Fixtures */}
         <div className="card">
           <div className="card-header">
