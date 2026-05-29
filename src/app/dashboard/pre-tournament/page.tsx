@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { SortableGroup } from '@/components/SortableGroup';
 
 interface PreTournamentPrediction {
   id?: string;
@@ -70,43 +71,63 @@ export default function PreTournamentPage() {
     setTimeout(() => setMessage(''), 3000);
   }
 
-  async function saveGroupPrediction(group: string) {
-    const teams = groups[group];
-    const pred = groupPreds[group] || {
-      group,
-      position1: teams[0],
-      position2: teams[1],
-      position3: teams[2],
-      position4: teams[3],
-      isLocked: false,
-    };
+  async function saveAllGroupPredictions() {
+    setSaving(true);
+    try {
+      const promises = Object.keys(groups).map(group => {
+        const teams = groups[group];
+        const pred = groupPreds[group] || {
+          group,
+          position1: teams[0],
+          position2: teams[1],
+          position3: teams[2],
+          position4: teams[3],
+          isLocked: false,
+        };
+        if (pred.isLocked) return Promise.resolve(null);
 
-    const res = await fetch('/api/group-predictions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pred),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setGroupPreds({ ...groupPreds, [group]: data });
-      setMessage(`Group ${group} prediction saved!`);
+        return fetch('/api/group-predictions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pred),
+        }).then(res => res.json());
+      });
+
+      const results = await Promise.all(promises);
+      const newPreds = { ...groupPreds };
+      results.forEach(res => {
+        if (res && res.group) {
+          newPreds[res.group] = res;
+        }
+      });
+      setGroupPreds(newPreds);
+      setMessage('All Group Standings saved successfully!');
+    } catch (e) {
+      setMessage('Error saving group predictions');
     }
+    setSaving(false);
     setTimeout(() => setMessage(''), 3000);
   }
 
-  function setGroupPosition(group: string, position: string, value: string) {
-    const teams = groups[group];
-    const existing = groupPreds[group] || {
+  function handleGroupOrderChange(group: string, newOrder: string[]) {
+    const pred = groupPreds[group] || {
       group,
-      position1: teams[0],
-      position2: teams[1],
-      position3: teams[2],
-      position4: teams[3],
+      position1: groups[group][0],
+      position2: groups[group][1],
+      position3: groups[group][2],
+      position4: groups[group][3],
       isLocked: false,
     };
+    
     setGroupPreds({
       ...groupPreds,
-      [group]: { ...existing, [position]: value },
+      [group]: {
+        ...pred,
+        position1: newOrder[0],
+        position2: newOrder[1],
+        position3: newOrder[2],
+        position4: newOrder[3]
+      }
     });
   }
 
@@ -209,56 +230,47 @@ export default function PreTournamentPage() {
       )}
 
       {activeTab === 'groups' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
-          {Object.entries(groups).map(([group, teams]) => {
-            const pred = groupPreds[group];
-            const isSaved = !!pred;
-            return (
-              <div key={group} className="card" style={{ position: 'relative' }}>
-                {isSaved && (
-                  <span style={{
-                    position: 'absolute', top: 12, right: 12,
-                    fontSize: '0.7rem', padding: '2px 8px', borderRadius: 'var(--radius-sm)',
-                    background: 'rgba(0, 255, 135, 0.1)', color: 'var(--accent-green)', border: '1px solid var(--accent-green)',
-                  }}>
-                    Saved
-                  </span>
-                )}
-                <h4 style={{ marginBottom: 12, color: 'var(--accent-green)' }}>Group {group}</h4>
-                {[1, 2, 3, 4].map(pos => (
-                  <div key={pos} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h3 className="card-title">Group Standings</h3>
+            <button className="btn btn-primary" onClick={saveAllGroupPredictions} disabled={saving}>
+              {saving ? 'Saving...' : '💾 Save All Groups'}
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+            {Object.entries(groups).map(([group, defaultTeams]) => {
+              const pred = groupPreds[group];
+              const isSaved = !!pred;
+              
+              // Determine the current order: either the saved prediction, or the default teams
+              const currentOrder = pred 
+                ? [pred.position1, pred.position2, pred.position3, pred.position4]
+                : defaultTeams;
+
+              return (
+                <div key={group} className="card" style={{ position: 'relative', padding: '16px' }}>
+                  {isSaved && (
                     <span style={{
-                      width: 24, height: 24, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      borderRadius: '50%', fontSize: '0.7rem', fontWeight: 700,
-                      background: pos === 1 ? 'var(--gold)' : pos === 2 ? 'var(--silver)' : 'var(--bg-secondary)',
-                      color: pos <= 2 ? '#000' : 'var(--text-primary)',
+                      position: 'absolute', top: 12, right: 12,
+                      fontSize: '0.7rem', padding: '2px 8px', borderRadius: 'var(--radius-sm)',
+                      background: 'rgba(0, 255, 135, 0.1)', color: 'var(--accent-green)', border: '1px solid var(--accent-green)',
                     }}>
-                      {pos}
+                      Saved
                     </span>
-                    <select
-                      className="form-input"
-                      style={{ flex: 1, padding: '6px 10px', fontSize: '0.85rem' }}
-                      value={(pred as any)?.[`position${pos}`] || teams[pos - 1]}
-                      onChange={e => setGroupPosition(group, `position${pos}`, e.target.value)}
-                      disabled={pred?.isLocked}
-                    >
-                      {teams.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
-                  </div>
-                ))}
-                {!pred?.isLocked && (
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    style={{ width: '100%', marginTop: 8 }}
-                    onClick={() => saveGroupPrediction(group)}
-                  >
-                    Save Group {group}
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                  )}
+                  <h4 style={{ marginBottom: 12, color: 'var(--accent-green)' }}>Group {group}</h4>
+                  
+                  <SortableGroup 
+                    groupName={group}
+                    teams={currentOrder}
+                    isLocked={pred?.isLocked || false}
+                    onChange={(newOrder) => handleGroupOrderChange(group, newOrder)}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </>
   );
