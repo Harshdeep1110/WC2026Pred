@@ -33,6 +33,10 @@ export function DashboardShell({ user, children }: { user: any; children: React.
             <span className="bottom-nav-icon">⚽</span>
             <span>Matches</span>
           </Link>
+          <Link href="/dashboard/pre-tournament" className={`bottom-nav-item ${pathname === '/dashboard/pre-tournament' ? 'active' : ''}`}>
+            <span className="bottom-nav-icon">📝</span>
+            <span>Setup</span>
+          </Link>
           <Link href="/dashboard/leaderboard" className={`bottom-nav-item ${pathname === '/dashboard/leaderboard' ? 'active' : ''}`}>
             <span className="bottom-nav-icon">🏆</span>
             <span>Table</span>
