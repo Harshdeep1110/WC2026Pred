@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import prisma from '@/lib/db';
 import Link from 'next/link';
 import { getFlag } from '@/lib/flags';
+import { ClientDate } from '@/components/ClientDate';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -71,13 +72,16 @@ export default async function DashboardPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {upcomingFixtures.map(f => {
                 const hasPrediction = predictions.some(p => p.fixtureId === f.id);
-                const date = new Date(f.kickoffTimeUtc);
                 return (
                   <Link key={f.id} href={`/dashboard/fixtures/${f.id}`} className="fixture-card">
                     <div className="fixture-time-col">
-                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                      <div style={{ fontSize: '0.65rem', marginBottom: '6px' }}>{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                      <div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                        <ClientDate dateStr={f.kickoffTimeUtc} type="time" />
+                      </div>
+                      <div style={{ fontSize: '0.65rem', marginBottom: '6px' }}>
+                        <ClientDate dateStr={f.kickoffTimeUtc} type="date" />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
                         {hasPrediction ? (
                           <span className="badge badge-active" style={{ fontSize: '0.6rem', padding: '3px 6px', display: 'inline-block' }}>✓ PREDICTED</span>
                         ) : (
@@ -149,12 +153,13 @@ export default async function DashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {recentResults.map(f => {
               const pred = predictions.find(p => p.fixtureId === f.id);
-              const date = new Date(f.kickoffTimeUtc);
               return (
                 <Link key={f.id} href={`/dashboard/fixtures/${f.id}`} className="fixture-card">
                   <div className="fixture-time-col">
                     <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>FT</div>
-                    <div style={{ fontSize: '0.65rem' }}>{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                    <div style={{ fontSize: '0.65rem' }}>
+                      <ClientDate dateStr={f.kickoffTimeUtc} type="date" />
+                    </div>
                   </div>
                   <div className="fixture-teams-col">
                     <div className="fixture-team-row">
