@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/db';
+import { SignOutButton } from '@/components/SignOutButton';
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -16,8 +17,9 @@ export default async function ProfilePage() {
 
   return (
     <>
-      <div className="page-header">
-        <h1 className="page-title">👤 Profile</h1>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>👤 Profile</h1>
+        <SignOutButton className="btn btn-secondary btn-sm" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 24 }}>

@@ -91,7 +91,7 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
         <button
           className="btn btn-secondary btn-sm"
           style={{ width: '100%' }}
-          onClick={() => signOut({ callbackUrl: '/login' })}
+          onClick={() => signOut({ callbackUrl: `${window.location.origin}/login` })}
         >
           Sign Out
         </button>
