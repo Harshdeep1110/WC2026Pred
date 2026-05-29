@@ -119,22 +119,31 @@ export default async function DashboardPage() {
             <Link href="/dashboard/chips" className="btn btn-secondary btn-sm">Manage</Link>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {chips.map(chip => (
-              <div key={chip.id} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '12px 16px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-secondary)',
-              }}>
-                <span className={`chip-badge ${chip.type.replace('_', '-')} ${chip.status === 'burned' ? 'burned' : ''}`}>
-                  {chip.type === 'banker' && '🏦 The Banker'}
-                  {chip.type === 'rival_block' && '🚨 Rival Block'}
-                  {chip.type === 'halftime_sub' && '⏱️ Halftime Sub'}
-                  {chip.type === 'goalfest' && '🎯 Goal-Fest'}
-                </span>
-                <span style={{ fontSize: '0.8rem', color: chip.status === 'available' ? 'var(--accent-green)' : 'var(--text-muted)' }}>
-                  {chip.status === 'available' ? 'Available' : 'Burned'}
-                </span>
-              </div>
-            ))}
+            {chips.map(chip => {
+              const cType = chip.type.replace('_', '-');
+              const isBurned = chip.status === 'burned';
+              let icon = '🃏';
+              let title = 'Chip';
+              let desc = '';
+              
+              if (chip.type === 'banker') { icon = '🏦'; title = 'The Banker'; desc = 'Double points for a match'; }
+              else if (chip.type === 'rival_block') { icon = '🚨'; title = 'Rival Block'; desc = 'Nullify a rival\'s points'; }
+              else if (chip.type === 'halftime_sub') { icon = '⏱️'; title = 'Halftime Sub'; desc = 'Change prediction at HT'; }
+              else if (chip.type === 'goalfest') { icon = '🎯'; title = 'Goal-Fest'; desc = 'Bonus points for total goals'; }
+
+              return (
+                <div key={chip.id} className={`chip-row ${isBurned ? 'burned' : ''}`}>
+                  <div className={`chip-icon-box ${cType}`}>{icon}</div>
+                  <div className="chip-row-info">
+                    <div className="chip-row-title">{title}</div>
+                    <div className="chip-row-desc">{desc}</div>
+                  </div>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: isBurned ? 'var(--text-muted)' : 'var(--accent-green)' }}>
+                    {isBurned ? 'BURNED' : 'AVAILABLE'}
+                  </span>
+                </div>
+              );
+            })}
             {chips.length === 0 && (
               <div className="empty-state">
                 <div className="empty-state-desc">Chips will appear after registration.</div>

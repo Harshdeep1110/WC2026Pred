@@ -359,12 +359,48 @@ a:hover { color: #33ff9f; }
   transition: all var(--transition-fast);
 }
 
-.chip-badge.banker { background: var(--accent-gold-dim); color: var(--accent-gold); border: 1px solid rgba(255, 215, 0, 0.3); }
-.chip-badge.rival-block { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(255, 71, 87, 0.3); }
-.chip-badge.halftime-sub { background: var(--accent-blue-dim); color: var(--accent-blue); border: 1px solid rgba(59, 130, 246, 0.3); }
-.chip-badge.goalfest { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+.chip-badge.banker { background: var(--accent-gold-dim); color: var(--accent-gold); border: 1px solid rgba(245, 166, 35, 0.3); }
+.chip-badge.rival-block { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(224, 61, 61, 0.3); }
+.chip-badge.halftime-sub { background: var(--accent-blue-dim); color: var(--accent-blue); border: 1px solid rgba(55, 77, 245, 0.3); }
+.chip-badge.goalfest { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid rgba(139, 92, 246, 0.3); }
 .chip-badge.burned { opacity: 0.4; cursor: default; text-decoration: line-through; }
 .chip-badge:not(.burned):hover { transform: scale(1.05); }
+
+/* ===== CHIP CARDS (DASHBOARD) ===== */
+.chip-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+.chip-row:hover { border-color: var(--border-active); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+
+.chip-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.chip-icon-box.banker { background: var(--accent-gold-dim); color: var(--accent-gold); border: 1px solid rgba(245, 166, 35, 0.3); }
+.chip-icon-box.rival-block { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid rgba(224, 61, 61, 0.3); }
+.chip-icon-box.halftime-sub { background: var(--accent-blue-dim); color: var(--accent-blue); border: 1px solid rgba(55, 77, 245, 0.3); }
+.chip-icon-box.goalfest { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid rgba(139, 92, 246, 0.3); }
+
+.chip-row-info { flex: 1; }
+.chip-row-title { font-weight: 700; font-size: 1rem; margin-bottom: 2px; color: var(--text-primary); }
+.chip-row-desc { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.3; }
+
+.chip-row.burned { opacity: 0.5; border-color: transparent; }
+.chip-row.burned .chip-icon-box { filter: grayscale(1); background: var(--bg-glass); border-color: var(--border-primary); color: var(--text-muted); }
 
 /* ===== LEADERBOARD ===== */
 .leaderboard-table { width: 100%; border-collapse: separate; border-spacing: 0 4px; }
