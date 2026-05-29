@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/db';
 import Link from 'next/link';
+import { getFlag } from '@/lib/flags';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -75,26 +76,26 @@ export default async function DashboardPage() {
                   <Link key={f.id} href={`/dashboard/fixtures/${f.id}`} className="fixture-card">
                     <div className="fixture-time-col">
                       <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                      <div style={{ fontSize: '0.65rem' }}>{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
-                      <div style={{ marginTop: '4px' }}>
+                      <div style={{ fontSize: '0.65rem', marginBottom: '6px' }}>{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                      <div>
                         {hasPrediction ? (
-                          <span className="badge badge-active" style={{ fontSize: '0.6rem', padding: '2px 4px' }}>✓</span>
+                          <span className="badge badge-active" style={{ fontSize: '0.6rem', padding: '3px 6px', display: 'inline-block' }}>✓ PREDICTED</span>
                         ) : (
-                          <span className="badge badge-admin" style={{ fontSize: '0.6rem', padding: '2px 4px' }}>Predict</span>
+                          <span className="badge badge-admin" style={{ fontSize: '0.6rem', padding: '3px 6px', display: 'inline-block' }}>PREDICT</span>
                         )}
                       </div>
                     </div>
                     <div className="fixture-teams-col">
                       <div className="fixture-team-row">
                         <div className="fixture-team-name">
-                          <span className="fixture-team-flag">{f.homeTeam.substring(0,2).toUpperCase()}</span>
+                          <span className="fixture-team-flag">{getFlag(f.homeTeam)}</span>
                           {f.homeTeam}
                         </div>
                         <div className="fixture-score" style={{ color: 'var(--text-muted)' }}>-</div>
                       </div>
                       <div className="fixture-team-row">
                         <div className="fixture-team-name">
-                          <span className="fixture-team-flag">{f.awayTeam.substring(0,2).toUpperCase()}</span>
+                          <span className="fixture-team-flag">{getFlag(f.awayTeam)}</span>
                           {f.awayTeam}
                         </div>
                         <div className="fixture-score" style={{ color: 'var(--text-muted)' }}>-</div>
@@ -158,14 +159,14 @@ export default async function DashboardPage() {
                   <div className="fixture-teams-col">
                     <div className="fixture-team-row">
                       <div className="fixture-team-name">
-                        <span className="fixture-team-flag">{f.homeTeam.substring(0,2).toUpperCase()}</span>
+                        <span className="fixture-team-flag">{getFlag(f.homeTeam)}</span>
                         <span style={{ fontWeight: f.homeScore! > f.awayScore! ? 700 : 500 }}>{f.homeTeam}</span>
                       </div>
                       <div className="fixture-score">{f.homeScore}</div>
                     </div>
                     <div className="fixture-team-row">
                       <div className="fixture-team-name">
-                        <span className="fixture-team-flag">{f.awayTeam.substring(0,2).toUpperCase()}</span>
+                        <span className="fixture-team-flag">{getFlag(f.awayTeam)}</span>
                         <span style={{ fontWeight: f.awayScore! > f.homeScore! ? 700 : 500 }}>{f.awayTeam}</span>
                       </div>
                       <div className="fixture-score">{f.awayScore}</div>
