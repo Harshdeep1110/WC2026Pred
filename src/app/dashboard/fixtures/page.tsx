@@ -138,40 +138,41 @@ export default function FixturesPage() {
                 const isUrgent = countdown && !countdown.includes('d') && parseInt(countdown) < 2;
 
                 return (
-                  <Link key={f.id} href={`/dashboard/fixtures/${f.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                    <div className="fixture-card">
-                      <div className="fixture-team">
-                        <div className="fixture-team-flag">{getFlag(f.homeTeam)}</div>
-                        <span>{f.homeTeam}</span>
-                      </div>
-
-                      <div className="fixture-center">
-                        {f.status === 'full_time' ? (
-                          <div className="fixture-score">
-                            <span>{f.homeScore}</span>
-                            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>–</span>
-                            <span>{f.awayScore}</span>
-                          </div>
-                        ) : (
-                          <div className="fixture-vs">{formatTime(f.kickoffTimeUtc)}</div>
-                        )}
-                        <div className="fixture-meta">
-                          {f.group !== 'R32' && f.group !== 'R16' && f.group !== 'QF' && f.group !== 'SF' && f.group !== '3P' && f.group !== 'FIN'
-                            ? `Group ${f.group}` : stageLabels[f.stage]}
-                          {' • '}{f.venue}
+                  <Link key={f.id} href={`/dashboard/fixtures/${f.id}`} className="fixture-card">
+                    <div className="fixture-time-col">
+                      {f.status === 'full_time' ? (
+                        <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>FT</div>
+                      ) : (
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{formatTime(f.kickoffTimeUtc)}</div>
+                      )}
+                      
+                      {countdown ? (
+                        <div style={{ fontSize: '0.65rem', color: isUrgent ? 'var(--accent-red)' : 'var(--accent-green)', marginTop: '4px', textAlign: 'center' }}>
+                          {countdown}
                         </div>
-                        {countdown ? (
-                          <span className={`fixture-countdown ${isUrgent ? 'urgent' : ''}`}>
-                            🔓 Locks in {countdown}
-                          </span>
-                        ) : f.status === 'upcoming' ? (
-                          <span className="fixture-locked">🔒 Locked</span>
-                        ) : null}
-                      </div>
+                      ) : f.status === 'upcoming' ? (
+                        <div style={{ fontSize: '0.65rem', color: 'var(--accent-red)', marginTop: '4px' }}>🔒</div>
+                      ) : null}
+                    </div>
 
-                      <div className="fixture-team away">
-                        <span>{f.awayTeam}</span>
-                        <div className="fixture-team-flag">{getFlag(f.awayTeam)}</div>
+                    <div className="fixture-teams-col">
+                      <div className="fixture-team-row">
+                        <div className="fixture-team-name">
+                          <span className="fixture-team-flag">{getFlag(f.homeTeam)}</span>
+                          <span style={{ fontWeight: f.status === 'full_time' && f.homeScore! > f.awayScore! ? 700 : 500 }}>{f.homeTeam}</span>
+                        </div>
+                        <div className="fixture-score" style={{ color: f.status === 'full_time' ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                          {f.status === 'full_time' ? f.homeScore : '-'}
+                        </div>
+                      </div>
+                      <div className="fixture-team-row">
+                        <div className="fixture-team-name">
+                          <span className="fixture-team-flag">{getFlag(f.awayTeam)}</span>
+                          <span style={{ fontWeight: f.status === 'full_time' && f.awayScore! > f.homeScore! ? 700 : 500 }}>{f.awayTeam}</span>
+                        </div>
+                        <div className="fixture-score" style={{ color: f.status === 'full_time' ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                          {f.status === 'full_time' ? f.awayScore : '-'}
+                        </div>
                       </div>
                     </div>
                   </Link>

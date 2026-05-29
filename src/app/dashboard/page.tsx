@@ -70,28 +70,36 @@ export default async function DashboardPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {upcomingFixtures.map(f => {
                 const hasPrediction = predictions.some(p => p.fixtureId === f.id);
+                const date = new Date(f.kickoffTimeUtc);
                 return (
-                  <Link
-                    key={f.id}
-                    href={`/dashboard/fixtures/${f.id}`}
-                    style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '12px 16px', borderRadius: 'var(--radius-sm)',
-                      background: 'var(--bg-secondary)', textDecoration: 'none', color: 'inherit',
-                      transition: 'background var(--transition-fast)',
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{f.homeTeam} vs {f.awayTeam}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        Group {f.group} • {new Date(f.kickoffTimeUtc).toLocaleDateString()}
+                  <Link key={f.id} href={`/dashboard/fixtures/${f.id}`} className="fixture-card">
+                    <div className="fixture-time-col">
+                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      <div style={{ fontSize: '0.65rem' }}>{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                      <div style={{ marginTop: '4px' }}>
+                        {hasPrediction ? (
+                          <span className="badge badge-active" style={{ fontSize: '0.6rem', padding: '2px 4px' }}>✓</span>
+                        ) : (
+                          <span className="badge badge-admin" style={{ fontSize: '0.6rem', padding: '2px 4px' }}>Predict</span>
+                        )}
                       </div>
                     </div>
-                    {hasPrediction ? (
-                      <span className="badge badge-active">✓ Predicted</span>
-                    ) : (
-                      <span className="badge badge-admin">Predict</span>
-                    )}
+                    <div className="fixture-teams-col">
+                      <div className="fixture-team-row">
+                        <div className="fixture-team-name">
+                          <span className="fixture-team-flag">{f.homeTeam.substring(0,2).toUpperCase()}</span>
+                          {f.homeTeam}
+                        </div>
+                        <div className="fixture-score" style={{ color: 'var(--text-muted)' }}>-</div>
+                      </div>
+                      <div className="fixture-team-row">
+                        <div className="fixture-team-name">
+                          <span className="fixture-team-flag">{f.awayTeam.substring(0,2).toUpperCase()}</span>
+                          {f.awayTeam}
+                        </div>
+                        <div className="fixture-score" style={{ color: 'var(--text-muted)' }}>-</div>
+                      </div>
+                    </div>
                   </Link>
                 );
               })}
@@ -140,21 +148,36 @@ export default async function DashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {recentResults.map(f => {
               const pred = predictions.find(p => p.fixtureId === f.id);
+              const date = new Date(f.kickoffTimeUtc);
               return (
-                <div key={f.id} style={{
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  padding: '12px 16px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-secondary)',
-                }}>
-                  <div>
-                    <span style={{ fontWeight: 600 }}>{f.homeTeam} {f.homeScore}–{f.awayScore} {f.awayTeam}</span>
+                <Link key={f.id} href={`/dashboard/fixtures/${f.id}`} className="fixture-card">
+                  <div className="fixture-time-col">
+                    <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>FT</div>
+                    <div style={{ fontSize: '0.65rem' }}>{date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
+                  </div>
+                  <div className="fixture-teams-col">
+                    <div className="fixture-team-row">
+                      <div className="fixture-team-name">
+                        <span className="fixture-team-flag">{f.homeTeam.substring(0,2).toUpperCase()}</span>
+                        <span style={{ fontWeight: f.homeScore! > f.awayScore! ? 700 : 500 }}>{f.homeTeam}</span>
+                      </div>
+                      <div className="fixture-score">{f.homeScore}</div>
+                    </div>
+                    <div className="fixture-team-row">
+                      <div className="fixture-team-name">
+                        <span className="fixture-team-flag">{f.awayTeam.substring(0,2).toUpperCase()}</span>
+                        <span style={{ fontWeight: f.awayScore! > f.homeScore! ? 700 : 500 }}>{f.awayTeam}</span>
+                      </div>
+                      <div className="fixture-score">{f.awayScore}</div>
+                    </div>
                   </div>
                   {pred && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span className={`tier-badge tier-${pred.scoringTier}`}>{pred.scoringTier}</span>
-                      <span className="points-display">+{pred.pointsAwarded || 0}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center', minWidth: '60px' }}>
+                      <span className={`tier-badge tier-${pred.scoringTier}`} style={{ fontSize: '0.55rem', padding: '2px 4px', marginBottom: '2px' }}>{pred.scoringTier}</span>
+                      <span className="points-display" style={{ fontSize: '0.9rem' }}>+{pred.pointsAwarded || 0}</span>
                     </div>
                   )}
-                </div>
+                </Link>
               );
             })}
           </div>

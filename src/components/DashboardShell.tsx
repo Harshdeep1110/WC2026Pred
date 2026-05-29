@@ -1,31 +1,47 @@
 'use client';
 
-import { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 export function DashboardShell({ user, children }: { user: any; children: React.ReactNode }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
       {/* Mobile Header */}
       <div className="mobile-header">
         <div className="landing-logo" style={{ fontSize: '1.2rem', marginBottom: 0 }}>⚽ Predictor</div>
-        <button className="btn btn-secondary btn-sm" onClick={() => setSidebarOpen(true)}>
-          ☰ Menu
-        </button>
+        <div className="avatar" style={{ width: 32, height: 32, fontSize: '0.8rem' }}>
+          {(user.name || '?')[0].toUpperCase()}
+        </div>
       </div>
 
-      {/* Overlay */}
-      {sidebarOpen && (
-        <div className="mobile-overlay" onClick={() => setSidebarOpen(false)} />
-      )}
-
       <div className="app-layout">
-        {/* Sidebar - passes close function to let links close it on click */}
-        <Sidebar user={user} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        {/* Desktop Sidebar */}
+        <Sidebar user={user} />
         
         <main className="main-content">{children}</main>
+
+        {/* Mobile Bottom Navigation */}
+        <nav className="bottom-nav">
+          <Link href="/dashboard" className={`bottom-nav-item ${pathname === '/dashboard' ? 'active' : ''}`}>
+            <span className="bottom-nav-icon">📊</span>
+            <span>Home</span>
+          </Link>
+          <Link href="/dashboard/fixtures" className={`bottom-nav-item ${pathname?.startsWith('/dashboard/fixtures') ? 'active' : ''}`}>
+            <span className="bottom-nav-icon">⚽</span>
+            <span>Matches</span>
+          </Link>
+          <Link href="/dashboard/leaderboard" className={`bottom-nav-item ${pathname === '/dashboard/leaderboard' ? 'active' : ''}`}>
+            <span className="bottom-nav-icon">🏆</span>
+            <span>Table</span>
+          </Link>
+          <Link href="/dashboard/profile" className={`bottom-nav-item ${pathname === '/dashboard/profile' ? 'active' : ''}`}>
+            <span className="bottom-nav-icon">👤</span>
+            <span>Profile</span>
+          </Link>
+        </nav>
       </div>
     </>
   );
