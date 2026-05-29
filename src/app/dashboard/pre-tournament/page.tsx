@@ -43,6 +43,7 @@ export default function PreTournamentPage() {
     isLocked: false,
   });
   const [groupPreds, setGroupPreds] = useState<Record<string, GroupPrediction>>({});
+  const [serverPreds, setServerPreds] = useState<Record<string, GroupPrediction>>({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState<'awards' | 'groups'>('awards');
@@ -55,6 +56,7 @@ export default function PreTournamentPage() {
       const map: Record<string, GroupPrediction> = {};
       data.forEach(p => { map[p.group] = p; });
       setGroupPreds(map);
+      setServerPreds(map);
     });
   }, []);
 
@@ -101,6 +103,7 @@ export default function PreTournamentPage() {
         }
       });
       setGroupPreds(newPreds);
+      setServerPreds(newPreds);
       setMessage('All Group Standings saved successfully!');
     } catch (e) {
       setMessage('Error saving group predictions');
@@ -240,7 +243,25 @@ export default function PreTournamentPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
             {Object.entries(groups).map(([group, defaultTeams]) => {
               const pred = groupPreds[group];
-              const isSaved = !!pred;
+              const serverPred = serverPreds[group];
+              
+              let isSaved = false;
+              let isUnsaved = false;
+
+              if (pred) {
+                if (!serverPred) {
+                  isUnsaved = true;
+                } else if (
+                  pred.position1 !== serverPred.position1 ||
+                  pred.position2 !== serverPred.position2 ||
+                  pred.position3 !== serverPred.position3 ||
+                  pred.position4 !== serverPred.position4
+                ) {
+                  isUnsaved = true;
+                } else {
+                  isSaved = true;
+                }
+              }
               
               // Determine the current order: either the saved prediction, or the default teams
               const currentOrder = pred 
@@ -249,13 +270,15 @@ export default function PreTournamentPage() {
 
               return (
                 <div key={group} className="card" style={{ position: 'relative', padding: '16px' }}>
-                  {isSaved && (
+                  {(isSaved || isUnsaved) && (
                     <span style={{
                       position: 'absolute', top: 12, right: 12,
                       fontSize: '0.7rem', padding: '2px 8px', borderRadius: 'var(--radius-sm)',
-                      background: 'rgba(0, 255, 135, 0.1)', color: 'var(--accent-green)', border: '1px solid var(--accent-green)',
+                      background: isUnsaved ? 'var(--accent-gold-dim)' : 'rgba(0, 255, 135, 0.1)', 
+                      color: isUnsaved ? 'var(--accent-gold)' : 'var(--accent-green)', 
+                      border: `1px solid ${isUnsaved ? 'var(--accent-gold)' : 'var(--accent-green)'}`,
                     }}>
-                      Saved
+                      {isUnsaved ? 'Unsaved Changes' : 'Saved'}
                     </span>
                   )}
                   <h4 style={{ marginBottom: 12, color: 'var(--accent-green)' }}>Group {group}</h4>
