@@ -85,35 +85,33 @@ export default function FixturesPage() {
         <p className="page-subtitle">104 matches across the 2026 FIFA World Cup</p>
       </div>
 
-      {/* Stage tabs */}
-      <div className="tabs">
-        {Object.entries(stageLabels).map(([key, label]) => (
-          <button
-            key={key}
-            className={`tab ${filter === key ? 'active' : ''}`}
-            onClick={() => { setFilter(key); setGroupFilter(''); }}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <select
+          className="input"
+          value={filter}
+          onChange={(e) => { setFilter(e.target.value); setGroupFilter(''); }}
+          style={{ flex: '1 1 200px', cursor: 'pointer' }}
+        >
+          {Object.entries(stageLabels).map(([key, label]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </select>
 
-      {/* Group filter for group stage */}
-      {filter === 'group' && (
-        <div style={{ marginBottom: '24px' }}>
+        {filter === 'group' && (
           <select 
             className="input" 
             value={groupFilter} 
             onChange={(e) => setGroupFilter(e.target.value)}
-            style={{ width: '100%', maxWidth: '200px', cursor: 'pointer' }}
+            style={{ flex: '1 1 150px', cursor: 'pointer' }}
           >
             <option value="">All Groups</option>
             {'ABCDEFGHIJKL'.split('').map(g => (
               <option key={g} value={g}>Group {g}</option>
             ))}
           </select>
-        </div>
-      )}
+        )}
+      </div>
 
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
