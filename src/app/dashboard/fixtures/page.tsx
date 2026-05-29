@@ -100,22 +100,18 @@ export default function FixturesPage() {
 
       {/* Group filter for group stage */}
       {filter === 'group' && (
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-          <button
-            className={`btn btn-sm ${!groupFilter ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setGroupFilter('')}
+        <div style={{ marginBottom: '24px' }}>
+          <select 
+            className="input" 
+            value={groupFilter} 
+            onChange={(e) => setGroupFilter(e.target.value)}
+            style={{ width: '100%', maxWidth: '200px', cursor: 'pointer' }}
           >
-            All Groups
-          </button>
-          {'ABCDEFGHIJKL'.split('').map(g => (
-            <button
-              key={g}
-              className={`btn btn-sm ${groupFilter === g ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setGroupFilter(g)}
-            >
-              {g}
-            </button>
-          ))}
+            <option value="">All Groups</option>
+            {'ABCDEFGHIJKL'.split('').map(g => (
+              <option key={g} value={g}>Group {g}</option>
+            ))}
+          </select>
         </div>
       )}
 
