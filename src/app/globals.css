@@ -560,7 +560,19 @@ a:hover { color: #33ff9f; }
 .stat-value.gold { color: var(--accent-gold); }
 
 /* ===== TABS ===== */
-.tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--bg-secondary); padding: 4px; border-radius: var(--radius-md); }
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
 
 .tab {
   padding: 8px 20px;
@@ -568,10 +580,11 @@ a:hover { color: #33ff9f; }
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-secondary);
+  border: none;
+  background: transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
-  border: none;
-  background: none;
+  flex-shrink: 0;
   font-family: var(--font-body);
 }
 
