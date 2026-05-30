@@ -82,7 +82,13 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
 
       <div style={{ borderTop: '1px solid var(--border-primary)', paddingTop: '16px', marginTop: '16px' }}>
         <div className="user-row" style={{ marginBottom: '12px' }}>
-          <div className="avatar">{(user.name || '?')[0].toUpperCase()}</div>
+          <div className="avatar" style={{ overflow: 'hidden' }}>
+            {(user as any).avatarUrl ? (
+              <img src={(user as any).avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              (user.name || '?')[0].toUpperCase()
+            )}
+          </div>
           <div>
             <div className="user-name">{user.name}</div>
             <div className="user-email">{user.email}</div>

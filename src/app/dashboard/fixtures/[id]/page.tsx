@@ -432,7 +432,13 @@ export default function FixtureDetailPage() {
             {communityPredictions.map(cp => (
               <div key={cp.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-primary)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div className="avatar" style={{ width: 32, height: 32, fontSize: '0.8rem' }}>{cp.user.displayName[0].toUpperCase()}</div>
+                  <div className="avatar" style={{ width: 32, height: 32, fontSize: '0.8rem', overflow: 'hidden' }}>
+                    {cp.user.avatarUrl ? (
+                      <img src={cp.user.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      cp.user.displayName[0].toUpperCase()
+                    )}
+                  </div>
                   <div>
                     <div style={{ fontWeight: 600 }}>{cp.user.displayName}</div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>

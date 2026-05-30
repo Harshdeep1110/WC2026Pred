@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import prisma from '@/lib/db';
 import { redirect } from 'next/navigation';
 import { DashboardShell } from '@/components/DashboardShell';
 
@@ -6,5 +7,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await auth();
   if (!session?.user) redirect('/login');
 
-  return <DashboardShell user={session.user}>{children}</DashboardShell>;
+  const user = await prisma.user.findUnique({ where: { id: session.user.id! } });
+
+  return <DashboardShell user={user}>{children}</DashboardShell>;
 }

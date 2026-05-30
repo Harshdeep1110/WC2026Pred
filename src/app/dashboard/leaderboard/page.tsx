@@ -52,7 +52,13 @@ export default function LeaderboardPage() {
                 </td>
                 <td>
                   <div className="user-row">
-                    <div className="avatar">{entry.displayName[0].toUpperCase()}</div>
+                    <div className="avatar" style={{ overflow: 'hidden' }}>
+                      {entry.avatarUrl ? (
+                        <img src={entry.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        entry.displayName[0].toUpperCase()
+                      )}
+                    </div>
                     <span className="user-name">{entry.displayName}</span>
                   </div>
                 </td>

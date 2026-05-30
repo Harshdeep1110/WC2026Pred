@@ -9,11 +9,14 @@ export function DashboardShell({ user, children }: { user: any; children: React.
 
   return (
     <>
-      {/* Mobile Header */}
       <div className="mobile-header">
         <div className="landing-logo" style={{ fontSize: '1.2rem', marginBottom: 0 }}>⚽ Predictor</div>
-        <div className="avatar" style={{ width: 32, height: 32, fontSize: '0.8rem' }}>
-          {(user.name || '?')[0].toUpperCase()}
+        <div className="avatar" style={{ width: 32, height: 32, fontSize: '0.8rem', overflow: 'hidden' }}>
+          {user.avatarUrl ? (
+            <img src={user.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            (user.displayName || user.name || '?')[0].toUpperCase()
+          )}
         </div>
       </div>
 

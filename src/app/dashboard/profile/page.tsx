@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
 import prisma from '@/lib/db';
 import { SignOutButton } from '@/components/SignOutButton';
+import AvatarUploader from '@/components/AvatarUploader';
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -25,9 +26,7 @@ export default async function ProfilePage() {
       <div className="profile-grid">
         {/* Profile card */}
         <div className="card" style={{ textAlign: 'center' }}>
-          <div className="avatar avatar-lg" style={{ margin: '0 auto 16px' }}>
-            {user!.displayName[0].toUpperCase()}
-          </div>
+          <AvatarUploader currentAvatarUrl={user!.avatarUrl} displayName={user!.displayName} />
           <h2 style={{ marginBottom: 4 }}>{user!.displayName}</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: 20 }}>{user!.email}</p>
 
