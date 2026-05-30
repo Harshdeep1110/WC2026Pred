@@ -1,1 +1,0 @@
-import { compare } from 'bcryptjs'; import { prisma } from './src/lib/db'; async function test() { const user = await prisma.user.findUnique({ where: { email: 'hsingh.dns@gmail.com' }}); console.log('user', user); if(user) { const v = await compare('12345678', user.passwordHash); console.log('valid', v); } } test().finally(()=>prisma.$disconnect());
