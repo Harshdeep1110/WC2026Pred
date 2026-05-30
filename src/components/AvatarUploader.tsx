@@ -8,7 +8,7 @@ export default function AvatarUploader({
   displayName,
 }: {
   currentAvatarUrl: string | null;
-  displayName: string;
+  displayName: string | null;
 }) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -106,7 +106,7 @@ export default function AvatarUploader({
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
           />
         ) : (
-          displayName[0].toUpperCase()
+          (displayName || 'U')[0].toUpperCase()
         )}
         
         {loading && (

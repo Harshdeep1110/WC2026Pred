@@ -26,8 +26,8 @@ export default async function ProfilePage() {
       <div className="profile-grid">
         {/* Profile card */}
         <div className="card" style={{ textAlign: 'center' }}>
-          <AvatarUploader currentAvatarUrl={user!.avatarUrl} displayName={user!.displayName} />
-          <h2 style={{ marginBottom: 4 }}>{user!.displayName}</h2>
+          <AvatarUploader currentAvatarUrl={user!.avatarUrl} displayName={user!.displayName || 'Player'} />
+          <h2 style={{ marginBottom: 4 }}>{user!.displayName || 'Player'}</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: 20 }}>{user!.email}</p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
