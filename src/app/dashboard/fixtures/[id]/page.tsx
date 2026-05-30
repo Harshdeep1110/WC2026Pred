@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { getFlag } from '@/lib/flags';
 
 interface Fixture {
@@ -103,25 +104,49 @@ export default function FixtureDetailPage() {
     if (homePred === '' || awayPred === '') {
       setError('Please enter both scores'); return;
     }
+    
+    const prevPrediction = prediction;
+    const optimisticPrediction = {
+      id: prediction?.id || 'temp',
+      homeScorePred: parseInt(homePred),
+      awayScorePred: parseInt(awayPred),
+      pointsAwarded: prediction?.pointsAwarded ?? null,
+      scoringTier: prediction?.scoringTier ?? null,
+      isLocked: false,
+      halftimeSubUsed: prediction?.halftimeSubUsed || false,
+    };
+    
+    setPrediction(optimisticPrediction as Prediction);
+    setMessage('Prediction saved! ✅');
     setSaving(true);
-    const res = await fetch('/api/predictions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fixtureId,
-        homeScorePred: parseInt(homePred),
-        awayScorePred: parseInt(awayPred),
-      }),
-    });
-    if (res.status === 423) {
-      setError('Prediction window closed');
-    } else if (res.ok) {
-      const data = await res.json();
-      setPrediction(data);
-      setMessage('Prediction saved! ✅');
-      setTimeout(() => setMessage(''), 3000);
-    } else {
-      setError('Failed to save prediction');
+
+    try {
+      const res = await fetch('/api/predictions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fixtureId,
+          homeScorePred: parseInt(homePred),
+          awayScorePred: parseInt(awayPred),
+        }),
+      });
+      if (res.status === 423) {
+        setError('Prediction window closed');
+        setPrediction(prevPrediction);
+        setMessage('');
+      } else if (res.ok) {
+        const data = await res.json();
+        setPrediction(data);
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        setError('Failed to save prediction');
+        setPrediction(prevPrediction);
+        setMessage('');
+      }
+    } catch {
+      setError('Network error saving prediction');
+      setPrediction(prevPrediction);
+      setMessage('');
     }
     setSaving(false);
   }
@@ -193,7 +218,11 @@ export default function FixtureDetailPage() {
   }
 
   return (
-    <>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       <button className="btn btn-secondary btn-sm" onClick={() => router.back()} style={{ marginBottom: 24 }}>
         ← Back to Fixtures
       </button>
@@ -465,6 +494,6 @@ export default function FixtureDetailPage() {
           </div>
         </div>
       )}
-    </>
+    </motion.div>
   );
 }

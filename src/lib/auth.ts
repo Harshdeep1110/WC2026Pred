@@ -1,10 +1,17 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import { compare } from 'bcryptjs';
 import prisma from './db';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     Credentials({
       name: 'credentials',
       credentials: {
@@ -20,6 +27,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!user || !user.isActive) return null;
+
+        if (!user.passwordHash) return null; // Created via OAuth, no password
 
         const isValid = await compare(credentials.password as string, user.passwordHash);
         if (!isValid) return null;
@@ -38,6 +47,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: '/login',
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        const existing = await prisma.user.findUnique({ where: { email: user.email! } });
+        if (!existing) {
+          const lockSetting = await prisma.systemSetting.findUnique({ where: { key: 'LEAGUE_LOCKED' } });
+          if (lockSetting?.value === 'true') {
+            return false; // Reject new users if league is locked
+          }
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

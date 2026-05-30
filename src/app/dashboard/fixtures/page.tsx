@@ -1,53 +1,35 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
+import useSWR from 'swr';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getFlag } from '@/lib/flags';
 
 interface Fixture {
-  id: number;
-  homeTeam: string;
-  awayTeam: string;
-  group: string;
-  stage: string;
-  venue: string;
-  city: string;
-  kickoffTimeUtc: string;
-  lockTimeUtc: string;
-  status: string;
-  homeScore: number | null;
-  awayScore: number | null;
+  id: number; homeTeam: string; awayTeam: string; group: string; stage: string;
+  venue: string; city: string; kickoffTimeUtc: string; lockTimeUtc: string;
+  status: string; homeScore: number | null; awayScore: number | null;
 }
 
 const stageLabels: Record<string, string> = {
-  group: 'Group Stage',
-  r32: 'Round of 32',
-  r16: 'Round of 16',
-  qf: 'Quarter-Finals',
-  sf: 'Semi-Finals',
-  third_place: 'Third Place',
-  final: 'Final',
+  group: 'Group Stage', r32: 'Round of 32', r16: 'Round of 16',
+  qf: 'Quarter-Finals', sf: 'Semi-Finals', third_place: 'Third Place', final: 'Final',
 };
 
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
 export default function FixturesPage() {
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [filter, setFilter] = useState('group');
   const [groupFilter, setGroupFilter] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (filter) params.set('stage', filter);
-      if (groupFilter) params.set('group', groupFilter);
-      const res = await fetch(`/api/fixtures?${params}`);
-      const data = await res.json();
-      setFixtures(data);
-      setLoading(false);
-    }
-    load();
-  }, [filter, groupFilter]);
+  const params = new URLSearchParams();
+  if (filter) params.set('stage', filter);
+  if (groupFilter) params.set('group', groupFilter);
+
+  const { data: fixtures, isLoading: loading } = useSWR<Fixture[]>(`/api/fixtures?${params}`, fetcher, {
+    refreshInterval: 60000,
+  });
 
   function formatDate(dateStr: string) {
     return new Date(dateStr).toLocaleDateString('en-US', {
@@ -71,7 +53,7 @@ export default function FixturesPage() {
   }
 
   // Group by date
-  const grouped = fixtures.reduce((acc: Record<string, Fixture[]>, f) => {
+  const grouped = (fixtures || []).reduce((acc: Record<string, Fixture[]>, f) => {
     const date = f.kickoffTimeUtc.split('T')[0];
     if (!acc[date]) acc[date] = [];
     acc[date].push(f);
@@ -79,7 +61,11 @@ export default function FixturesPage() {
   }, {});
 
   return (
-    <>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       <div className="page-header">
         <h1 className="page-title">Fixtures</h1>
         <p className="page-subtitle">104 matches across the 2026 FIFA World Cup</p>
@@ -177,13 +163,13 @@ export default function FixturesPage() {
         ))
       )}
 
-      {!loading && fixtures.length === 0 && (
+      {!loading && (fixtures || []).length === 0 && (
         <div className="empty-state">
           <div className="empty-state-icon">📅</div>
           <div className="empty-state-title">No fixtures found</div>
           <div className="empty-state-desc">Try a different filter.</div>
         </div>
       )}
-    </>
+    </motion.div>
   );
 }
