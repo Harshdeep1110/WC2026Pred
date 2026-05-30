@@ -40,6 +40,11 @@ export default function AdminUsersPage() {
   const [userChips, setUserChips] = useState<ChipData[]>([]);
   const [chipsLoading, setChipsLoading] = useState(false);
 
+  // Point adjustment modal state
+  const [pointsModalUser, setPointsModalUser] = useState<User | null>(null);
+  const [pointAdjustment, setPointAdjustment] = useState<number | ''>('');
+  const [pointReason, setPointReason] = useState('');
+
   useEffect(() => {
     fetch('/api/admin/users').then(r => r.json()).then(setUsers).finally(() => setLoading(false));
   }, []);
@@ -88,6 +93,25 @@ export default function AdminUsersPage() {
     } else {
       const err = await res.json();
       alert(err.error || 'Operation failed');
+    }
+  }
+
+  async function handlePointAdjustment() {
+    if (!pointsModalUser || typeof pointAdjustment !== 'number' || pointAdjustment === 0) return;
+    const res = await fetch(`/api/admin/users/${pointsModalUser.id}/points`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: pointAdjustment, reason: pointReason }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setUsers(users.map(u => u.id === pointsModalUser.id ? { ...u, totalPoints: data.newTotal } : u));
+      setPointsModalUser(null);
+      setPointAdjustment('');
+      setPointReason('');
+    } else {
+      const err = await res.json();
+      alert(err.error || 'Adjustment failed');
     }
   }
 
@@ -174,6 +198,12 @@ export default function AdminUsersPage() {
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                       <button
                         className="btn btn-sm btn-secondary"
+                        onClick={() => setPointsModalUser(u)}
+                      >
+                        ± Points
+                      </button>
+                      <button
+                        className="btn btn-sm btn-secondary"
                         onClick={() => openChipModal(u)}
                       >
                         🃏 Chips
@@ -253,6 +283,46 @@ export default function AdminUsersPage() {
                 })}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Point Adjustment Modal */}
+      {pointsModalUser && (
+        <div className="modal-overlay" onClick={() => setPointsModalUser(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h2 style={{ fontSize: '1.2rem' }}>± Adjust Points — {pointsModalUser.displayName}</h2>
+              <button className="btn btn-secondary btn-sm" onClick={() => setPointsModalUser(null)}>✕</button>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Point Adjustment (+ or -)</label>
+              <input
+                type="number"
+                className="form-input"
+                placeholder="e.g. 5 or -10"
+                value={pointAdjustment}
+                onChange={e => setPointAdjustment(e.target.value ? parseInt(e.target.value) : '')}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Reason (Audit Log)</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="e.g. Correction for spelling error"
+                value={pointReason}
+                onChange={e => setPointReason(e.target.value)}
+              />
+            </div>
+            <button
+              className="btn btn-primary"
+              style={{ width: '100%', marginTop: 8 }}
+              onClick={handlePointAdjustment}
+              disabled={typeof pointAdjustment !== 'number' || pointAdjustment === 0}
+            >
+              Apply Adjustment
+            </button>
           </div>
         </div>
       )}

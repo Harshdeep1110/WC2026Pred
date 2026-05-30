@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { PRE_TOURNAMENT_POINTS, GROUP_POSITION_POINTS } from '@/lib/scoring';
+import { isMatch } from '@/lib/stringMatch';
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,9 +22,9 @@ export async function POST(req: NextRequest) {
 
       for (const pred of awardPreds) {
         let pts = 0;
-        if (goldenBoot && pred.goldenBootPlayer?.toLowerCase() === goldenBoot.toLowerCase()) pts += PRE_TOURNAMENT_POINTS;
-        if (mostAssists && pred.mostAssistsPlayer?.toLowerCase() === mostAssists.toLowerCase()) pts += PRE_TOURNAMENT_POINTS;
-        if (goldenGlove && pred.goldenGlovePlayer?.toLowerCase() === goldenGlove.toLowerCase()) pts += PRE_TOURNAMENT_POINTS;
+        if (goldenBoot && isMatch(pred.goldenBootPlayer, goldenBoot)) pts += PRE_TOURNAMENT_POINTS;
+        if (mostAssists && isMatch(pred.mostAssistsPlayer, mostAssists)) pts += PRE_TOURNAMENT_POINTS;
+        if (goldenGlove && isMatch(pred.goldenGlovePlayer, goldenGlove)) pts += PRE_TOURNAMENT_POINTS;
 
         if (goldenBoot && mostAssists && goldenGlove) { // Only record if all are entered
           await prisma.preTournamentPrediction.update({
