@@ -45,6 +45,8 @@ export default function FixtureDetailPage() {
   const [targetUserId, setTargetUserId] = useState('');
   const [playingChip, setPlayingChip] = useState(false);
 
+  const [communityPredictions, setCommunityPredictions] = useState<any[]>([]);
+
   useEffect(() => {
     async function load() {
       const [fRes, pRes, cRes, lRes] = await Promise.all([
@@ -84,6 +86,16 @@ export default function FixtureDetailPage() {
     }, 1000);
     return () => clearInterval(interval);
   }, [fixture]);
+
+  const isLocked = countdown === 'Locked' || (fixture && new Date() >= new Date(fixture.lockTimeUtc));
+
+  useEffect(() => {
+    if (isLocked && communityPredictions.length === 0) {
+      fetch(`/api/fixtures/${fixtureId}/predictions`).then(res => {
+        if (res.ok) res.json().then(setCommunityPredictions);
+      });
+    }
+  }, [fixtureId, isLocked]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -149,7 +161,6 @@ export default function FixtureDetailPage() {
 
   if (!fixture) return <div className="skeleton" style={{ height: 300, borderRadius: 16 }} />;
 
-  const isLocked = countdown === 'Locked' || new Date() >= new Date(fixture.lockTimeUtc);
   const chipsPlayedHere = chips.filter(c => c.fixtureId === fixtureId);
   const availableChips = chips.filter(c => c.status === 'available');
 
@@ -284,9 +295,35 @@ export default function FixtureDetailPage() {
           </div>
 
           {prediction?.scoringTier && (
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <span className={`tier-badge tier-${prediction.scoringTier}`}>{prediction.scoringTier}</span>
-              <span className="points-display" style={{ marginLeft: 12 }}>+{prediction.pointsAwarded || 0} pts</span>
+            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: 'var(--radius-sm)', marginBottom: 24, border: '1px solid var(--border-primary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <h4 style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>📊 Points Breakdown</h4>
+                <span className={`tier-badge tier-${prediction.scoringTier}`}>{prediction.scoringTier.replace('_', ' ').toUpperCase()}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span>Base Points</span>
+                <span style={{ fontWeight: 600 }}>+{prediction.scoringTier === 'exact' ? 10 : prediction.scoringTier === 'goal_diff' ? 5 : prediction.scoringTier === 'result' ? 3 : 0}</span>
+              </div>
+              {chipsPlayedHere.map(c => {
+                if (c.type === 'banker') return <div key="banker" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--accent-gold)' }}><span>Banker Chip</span><span style={{ fontWeight: 600 }}>x2</span></div>;
+                if (c.type === 'halftime_sub') return <div key="ht" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--accent-green)' }}><span>Halftime Sub</span><span style={{ fontWeight: 600 }}>-50%</span></div>;
+                if (c.type === 'goalfest') {
+                  const totalGoals = (fixture.homeScore || 0) + (fixture.awayScore || 0);
+                  if (totalGoals >= 4) return <div key="gf" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#A020F0' }}><span>Goal-Fest Success</span><span style={{ fontWeight: 600 }}>x2</span></div>;
+                  else return <div key="gf-fail" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--danger)' }}><span>Goal-Fest Failed ({"<"}4 goals)</span><span style={{ fontWeight: 600 }}>0 pts</span></div>;
+                }
+                return null;
+              })}
+              {prediction.pointsAwarded === 0 && prediction.scoringTier === 'exact' && !chipsPlayedHere.some(c => c.type === 'goalfest') && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--danger)' }}>
+                  <span>💥 Rival Blocked!</span>
+                  <span style={{ fontWeight: 600 }}>0 pts</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-subtle)', fontWeight: 800 }}>
+                <span>Total Points</span>
+                <span className="points-display">{prediction.pointsAwarded} pts</span>
+              </div>
             </div>
           )}
 
@@ -383,6 +420,42 @@ export default function FixtureDetailPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Community Predictions */}
+      {isLocked && communityPredictions.length > 0 && (
+        <div className="card" style={{ maxWidth: 700, margin: '24px auto' }}>
+          <h3 style={{ fontFamily: 'var(--font-heading)', marginBottom: 20 }}>🕵️‍♂️ Community Predictions</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {communityPredictions.map(cp => (
+              <div key={cp.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-primary)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div className="avatar" style={{ width: 32, height: 32, fontSize: '0.8rem' }}>{cp.user.displayName[0].toUpperCase()}</div>
+                  <div>
+                    <div style={{ fontWeight: 600 }}>{cp.user.displayName}</div>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                      {cp.chips.includes('banker') && <span title="Banker" style={{ fontSize: '0.8rem' }}>🏦</span>}
+                      {cp.chips.includes('halftime_sub') && <span title="Halftime Sub" style={{ fontSize: '0.8rem' }}>⏱️</span>}
+                      {cp.chips.includes('goalfest') && <span title="Goal-Fest" style={{ fontSize: '0.8rem' }}>🎯</span>}
+                      {cp.chips.includes('rival_block') && <span title="Rival Block Played" style={{ fontSize: '0.8rem' }}>🚨</span>}
+                      {cp.isRivalBlocked && <span title="Blocked by Rival!" style={{ fontSize: '0.8rem' }}>💥</span>}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-heading)', color: cp.pointsAwarded !== null && cp.pointsAwarded > 0 ? 'var(--accent-green)' : 'var(--text-primary)' }}>
+                    {cp.homeScorePred} - {cp.awayScorePred}
+                  </div>
+                  {cp.pointsAwarded !== null && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      +{cp.pointsAwarded} pts
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
