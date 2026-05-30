@@ -71,7 +71,7 @@ export default function AdminPreTournamentPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">🏆 Score Pre-Tournament</h1>
+        <h1 className="page-title">Score Pre-Tournament</h1>
         <p className="page-subtitle">Enter actual winners and final group standings to distribute points.</p>
       </div>
 

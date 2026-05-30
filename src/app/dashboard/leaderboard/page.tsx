@@ -19,7 +19,7 @@ export default function LeaderboardPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">🏆 Leaderboard</h1>
+        <h1 className="page-title">Leaderboard</h1>
         <p className="page-subtitle">Global rankings across all predictions</p>
       </div>
 

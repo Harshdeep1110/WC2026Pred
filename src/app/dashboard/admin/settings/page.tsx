@@ -35,7 +35,7 @@ export default function AdminSettingsPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">⚙️ System Settings</h1>
+        <h1 className="page-title">System Settings</h1>
         <p className="page-subtitle">Manage global tournament settings</p>
       </div>
 

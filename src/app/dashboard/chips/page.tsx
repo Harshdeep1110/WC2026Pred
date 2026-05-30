@@ -24,7 +24,7 @@ export default function ChipsPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">🃏 Your Chips</h1>
+        <h1 className="page-title">Your Chips</h1>
         <p className="page-subtitle">Strategic power-ups — use them wisely, each can only be played once</p>
       </div>
 

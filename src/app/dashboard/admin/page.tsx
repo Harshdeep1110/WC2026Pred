@@ -23,7 +23,7 @@ export default async function AdminPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">⚙️ Admin Dashboard</h1>
+        <h1 className="page-title">Admin Dashboard</h1>
         <p className="page-subtitle">Tournament management panel</p>
       </div>
 

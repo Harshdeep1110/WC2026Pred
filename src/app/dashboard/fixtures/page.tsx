@@ -81,7 +81,7 @@ export default function FixturesPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">⚽ Fixtures</h1>
+        <h1 className="page-title">Fixtures</h1>
         <p className="page-subtitle">104 matches across the 2026 FIFA World Cup</p>
       </div>
 

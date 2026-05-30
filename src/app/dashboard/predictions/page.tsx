@@ -22,7 +22,7 @@ export default function PredictionsPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">🎯 My Predictions</h1>
+        <h1 className="page-title">My Predictions</h1>
         <p className="page-subtitle">{predictions.length} predictions • {total} points earned</p>
       </div>
 

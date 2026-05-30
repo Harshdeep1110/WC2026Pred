@@ -120,7 +120,7 @@ export default function AdminUsersPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">👥 Manage Users</h1>
+        <h1 className="page-title">Manage Users</h1>
         <p className="page-subtitle">{users.length} registered players</p>
       </div>
 

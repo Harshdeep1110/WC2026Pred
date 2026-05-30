@@ -68,7 +68,7 @@ export default function AdminFixturesPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">⚙️ Manage Fixtures</h1>
+        <h1 className="page-title">Manage Fixtures</h1>
         <p className="page-subtitle">Enter results and manage match status</p>
       </div>
 

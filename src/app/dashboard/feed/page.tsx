@@ -24,7 +24,7 @@ export default function FeedPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">📢 Activity Feed</h1>
+        <h1 className="page-title">Activity Feed</h1>
         <p className="page-subtitle">Latest events from the prediction league</p>
       </div>
 

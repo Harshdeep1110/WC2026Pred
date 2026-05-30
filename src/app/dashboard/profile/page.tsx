@@ -19,7 +19,7 @@ export default async function ProfilePage() {
   return (
     <>
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 className="page-title" style={{ marginBottom: 0 }}>👤 Profile</h1>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>Profile</h1>
         <SignOutButton className="btn btn-secondary btn-sm" />
       </div>
 

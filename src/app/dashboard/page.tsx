@@ -32,7 +32,7 @@ export default async function DashboardPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">Welcome back, {user?.displayName} 👋</h1>
+        <h1 className="page-title">Welcome back, {user?.displayName} </h1>
         <p className="page-subtitle">World Cup 2026 Prediction League</p>
       </div>
 

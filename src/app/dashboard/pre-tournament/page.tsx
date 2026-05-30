@@ -142,7 +142,7 @@ export default function PreTournamentPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">🏆 Pre-Tournament Predictions</h1>
+        <h1 className="page-title">Pre-Tournament Predictions</h1>
         <p className="page-subtitle">Complete before the tournament starts</p>
       </div>
 

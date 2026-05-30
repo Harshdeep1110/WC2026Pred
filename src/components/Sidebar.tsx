@@ -39,7 +39,7 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div className="sidebar-logo" style={{ marginBottom: 0 }}>
-          ⚽ Predictor
+          Predictor
           <span>World Cup 2026</span>
         </div>
         {isOpen && (
@@ -56,25 +56,25 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
             href={item.href}
             onClick={onClose}
             className={`nav-link ${pathname === item.href ? 'active' : ''}`}
+            style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', paddingTop: '12px' }}
           >
-            <span className="nav-icon">{item.icon}</span>
             {item.label}
           </Link>
         ))}
 
         {isAdmin && (
           <>
-            <div className="nav-section-label">Admin</div>
+            <div className="nav-section-label" style={{ marginTop: '24px' }}>Admin</div>
             {adminItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                className={`nav-link ${pathname === item.href ? 'active' : ''}`}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                {item.label}
-              </Link>
+               <Link
+                 key={item.href}
+                 href={item.href}
+                 onClick={onClose}
+                 className={`nav-link ${pathname === item.href ? 'active' : ''}`}
+                 style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px', paddingTop: '12px' }}
+               >
+                 {item.label}
+               </Link>
             ))}
           </>
         )}

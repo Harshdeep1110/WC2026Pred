@@ -26,7 +26,7 @@ export default async function AuditLogPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">📜 Audit Log</h1>
+        <h1 className="page-title">Audit Log</h1>
         <p className="page-subtitle">All admin actions are tracked</p>
       </div>
 

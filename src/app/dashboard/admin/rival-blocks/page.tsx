@@ -37,7 +37,7 @@ export default function AdminRivalBlocksPage() {
   return (
     <>
       <div className="page-header">
-        <h1 className="page-title">🎯 Rival Blocks</h1>
+        <h1 className="page-title">Rival Blocks</h1>
         <p className="page-subtitle">View all active and completed rival block chips across the league.</p>
       </div>
 
