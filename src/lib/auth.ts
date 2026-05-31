@@ -75,4 +75,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  events: {
+    async createUser({ user }) {
+      if (user.id) {
+        await prisma.chip.createMany({
+          data: [
+            { userId: user.id, type: 'banker', status: 'available' },
+            { userId: user.id, type: 'rival_block', status: 'available' },
+            { userId: user.id, type: 'halftime_sub', status: 'available' },
+            { userId: user.id, type: 'goalfest', status: 'available' },
+          ],
+        });
+      }
+    }
+  }
 });
