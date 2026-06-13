@@ -71,8 +71,7 @@ The application uses Prisma with a PostgreSQL database. Key models include:
 - `Chip`: Strategic modifiers users can apply to fixtures.
 - `ActivityFeedEvent`: Logs events for the global or targeted feed.
 
-## Development Command
-
+## Development Commands
 - `npm run dev`: Start the development server
 - `npm run build`: Build the application for production
 - `npm run start`: Start the production server

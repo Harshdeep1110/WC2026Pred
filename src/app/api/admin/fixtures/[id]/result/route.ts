@@ -25,9 +25,39 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     data: { homeScore, awayScore, totalGoals, status: 'full_time' },
   });
 
-  // Get all locked predictions for this fixture
+  // Lock all unlocked predictions
+  await prisma.prediction.updateMany({
+    where: { fixtureId, isLocked: false },
+    data: { isLocked: true },
+  });
+
+  // Create auto-zero for users who didn't predict
+  const allUsers = await prisma.user.findMany({ where: { isActive: true } });
+  const existingPredictions = await prisma.prediction.findMany({
+    where: { fixtureId },
+    select: { userId: true },
+  });
+  const predictedUserIds = new Set(existingPredictions.map((p: any) => p.userId));
+
+  for (const user of allUsers) {
+    if (!predictedUserIds.has(user.id)) {
+      await prisma.prediction.create({
+        data: {
+          userId: user.id,
+          fixtureId,
+          homeScorePred: null,
+          awayScorePred: null,
+          isLocked: true,
+          scoringTier: 'auto_zero',
+          pointsAwarded: 0,
+        },
+      });
+    }
+  }
+
+  // Get all predictions for this fixture
   const predictions = await prisma.prediction.findMany({
-    where: { fixtureId, isLocked: true },
+    where: { fixtureId },
     include: { user: true },
   });
 
@@ -62,10 +92,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     });
 
     // Update user total points
-    const allPredictions = await prisma.prediction.findMany({
+    const allPredictionsForUser = await prisma.prediction.findMany({
       where: { userId: pred.userId, pointsAwarded: { not: null } },
     });
-    const total = allPredictions.reduce((sum, p) => sum + (p.pointsAwarded || 0), 0);
+    const preTourney = await prisma.preTournamentPrediction.findUnique({
+      where: { userId: pred.userId },
+    });
+    const groupStandings = await prisma.groupStandingPrediction.findMany({
+      where: { userId: pred.userId, pointsAwarded: { not: null } },
+    });
+    const manualLogs = await prisma.auditLog.findMany({
+      where: { targetUserId: pred.userId, action: 'MANUAL_POINT_ADJUSTMENT' },
+    });
+
+    let total = allPredictionsForUser.reduce((sum: number, p: any) => sum + (p.pointsAwarded || 0), 0);
+    if (preTourney?.pointsAwarded) total += preTourney.pointsAwarded;
+    total += groupStandings.reduce((sum: number, p: any) => sum + (p.pointsAwarded || 0), 0);
+    total += manualLogs.reduce((sum: number, l: any) => sum + (l.delta || 0), 0);
+
     await prisma.user.update({
       where: { id: pred.userId },
       data: { totalPoints: total },

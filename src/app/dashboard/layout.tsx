@@ -8,6 +8,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) redirect('/login');
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id! } });
+  
+  if (!user) {
+    redirect('/api/auth/signout?callbackUrl=/login');
+  }
 
   return <DashboardShell user={user}>{children}</DashboardShell>;
 }
