@@ -26,6 +26,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       data: {
         adminId: session.user.id!,
         action: 'MANUAL_POINT_ADJUSTMENT',
+        targetUserId: userId,
+        delta: amount,
         notes: `Adjusted points for ${updatedUser.displayName} by ${amount > 0 ? '+' : ''}${amount}. Reason: ${reason || 'Manual correction'}`,
       },
     });

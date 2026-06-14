@@ -44,11 +44,17 @@ const venues = [
   { venue: 'Gillette Stadium', city: 'Boston' },
 ];
 
-function etToUtc(dateStr: string, etHour: number, etMin: number = 0): string {
-  // ET is UTC-4 during summer (EDT)
-  // Build date in ET then shift to UTC
+function istToUtc(dateStr: string, istHour: number, istMin: number = 0): string {
+  // IST is UTC+5:30
+  // Build date in IST then shift to UTC by subtracting 5h30m
   const [year, month, day] = dateStr.split('-').map(Number);
-  const d = new Date(Date.UTC(year, month - 1, day, etHour + 4, etMin, 0));
+  const totalMinutes = istHour * 60 + istMin - 330; // subtract 5h30m (330 min)
+  let utcDay = day;
+  let utcHour = Math.floor(totalMinutes / 60);
+  let utcMin = totalMinutes % 60;
+  if (utcMin < 0) { utcMin += 60; utcHour -= 1; }
+  if (utcHour < 0) { utcHour += 24; utcDay -= 1; }
+  const d = new Date(Date.UTC(year, month - 1, utcDay, utcHour, utcMin, 0));
   return d.toISOString();
 }
 
@@ -76,8 +82,9 @@ function generateFixtures(): FixtureData[] {
   const fixtures: FixtureData[] = [];
   let id = 1;
 
-  function add(date: string, etHour: number, home: string, away: string, group: string, stage: string, venueIdx: number) {
-    const kickoff = etToUtc(date, etHour);
+  // All times below are in IST (Indian Standard Time, UTC+5:30)
+  function add(date: string, istHour: number, home: string, away: string, group: string, stage: string, venueIdx: number, istMin: number = 0) {
+    const kickoff = istToUtc(date, istHour, istMin);
     fixtures.push({
       id: id++,
       matchDate: date,
@@ -94,192 +101,220 @@ function generateFixtures(): FixtureData[] {
   }
 
   // ============================================================
-  // MATCHDAY 1 — June 11-17 (confirmed schedule)
+  // MATCHDAY 1 — June 11-17 (All times in IST)
   // ============================================================
 
-  // June 11 — Group A
-  add('2026-06-11', 15, 'Mexico', 'South Africa', 'A', 'group', 0);           // Azteca
-  add('2026-06-11', 22, 'South Korea', 'Czech Republic', 'A', 'group', 1);    // Guadalajara
+  // June 12 IST — Group A
+  add('2026-06-12', 0, 'Mexico', 'South Africa', 'A', 'group', 0, 30);          // 00:30 IST
+  add('2026-06-12', 7, 'South Korea', 'Czech Republic', 'A', 'group', 1, 30);   // 07:30 IST
 
-  // June 12 — Groups B, D
-  add('2026-06-12', 15, 'Canada', 'Bosnia and Herzegovina', 'B', 'group', 4); // Toronto
-  add('2026-06-12', 21, 'United States', 'Paraguay', 'D', 'group', 6);        // SoFi
+  // June 13 IST — Groups B, D
+  add('2026-06-13', 0, 'Canada', 'Bosnia and Herzegovina', 'B', 'group', 4, 30); // 00:30 IST
+  add('2026-06-13', 6, 'United States', 'Paraguay', 'D', 'group', 6, 30);        // 06:30 IST
 
-  // June 13 — Groups B, C, D
-  add('2026-06-13', 15, 'Qatar', 'Switzerland', 'B', 'group', 14);            // Levi's
-  add('2026-06-13', 18, 'Brazil', 'Morocco', 'C', 'group', 5);                // MetLife
-  add('2026-06-13', 21, 'Haiti', 'Scotland', 'C', 'group', 15);               // Gillette
+  // June 14 IST — Groups B, C, D, E
+  add('2026-06-14', 0, 'Qatar', 'Switzerland', 'B', 'group', 14, 30);            // 00:30 IST
+  add('2026-06-14', 3, 'Brazil', 'Morocco', 'C', 'group', 5, 30);                // 03:30 IST
+  add('2026-06-14', 6, 'Haiti', 'Scotland', 'C', 'group', 15, 30);               // 06:30 IST
+  add('2026-06-14', 9, 'Australia', 'Turkey', 'D', 'group', 3, 30);              // 09:30 IST
 
-  // June 14 — Groups D, E, F (Australia vs Turkey kicks off at midnight ET = 4 AM UTC June 14)
-  add('2026-06-14', 0, 'Australia', 'Turkey', 'D', 'group', 3);               // BC Place
-  add('2026-06-14', 12, 'Germany', 'Curacao', 'E', 'group', 13);              // Philly
-  add('2026-06-14', 15, 'Ivory Coast', 'Ecuador', 'E', 'group', 7);           // AT&T
-  add('2026-06-14', 18, 'Netherlands', 'Japan', 'F', 'group', 8);             // Hard Rock
-  add('2026-06-14', 21, 'Sweden', 'Tunisia', 'F', 'group', 12);               // Arrowhead
+  // After Australia vs Turkey — CORRECTED TIMES below
+  add('2026-06-14', 22, 'Germany', 'Curacao', 'E', 'group', 13, 30);             // 22:30 IST
 
-  // June 15 — Groups G, H
-  add('2026-06-15', 12, 'Belgium', 'Egypt', 'G', 'group', 5);                 // MetLife
-  add('2026-06-15', 15, 'Iran', 'New Zealand', 'G', 'group', 2);              // Monterrey
-  add('2026-06-15', 18, 'Spain', 'Cape Verde', 'H', 'group', 9);              // NRG
-  add('2026-06-15', 21, 'Saudi Arabia', 'Uruguay', 'H', 'group', 11);         // Lumen
+  // June 15 IST — Groups E, F, H
+  add('2026-06-15', 1, 'Netherlands', 'Japan', 'F', 'group', 8, 30);             // 01:30 IST
+  add('2026-06-15', 4, 'Ivory Coast', 'Ecuador', 'E', 'group', 7, 30);           // 04:30 IST
+  add('2026-06-15', 7, 'Sweden', 'Tunisia', 'F', 'group', 12, 30);               // 07:30 IST
+  add('2026-06-15', 21, 'Spain', 'Cape Verde', 'H', 'group', 9, 30);             // 21:30 IST
 
-  // June 16 — Groups I, J
-  add('2026-06-16', 12, 'France', 'Senegal', 'I', 'group', 10);               // Mercedes
-  add('2026-06-16', 15, 'Iraq', 'Norway', 'I', 'group', 4);                   // Toronto
-  add('2026-06-16', 18, 'Argentina', 'Algeria', 'J', 'group', 5);             // MetLife
-  add('2026-06-16', 21, 'Austria', 'Jordan', 'J', 'group', 6);                // SoFi
+  // June 16 IST — Groups G, H
+  add('2026-06-16', 0, 'Belgium', 'Egypt', 'G', 'group', 5, 30);                 // 00:30 IST
+  add('2026-06-16', 3, 'Saudi Arabia', 'Uruguay', 'H', 'group', 11, 30);         // 03:30 IST
+  add('2026-06-16', 6, 'Iran', 'New Zealand', 'G', 'group', 2, 30);              // 06:30 IST
 
-  // June 17 — Groups K, L
-  add('2026-06-17', 12, 'Portugal', 'Congo DR', 'K', 'group', 7);             // AT&T
-  add('2026-06-17', 15, 'Uzbekistan', 'Colombia', 'K', 'group', 8);           // Hard Rock
-  add('2026-06-17', 18, 'England', 'Croatia', 'L', 'group', 11);              // Lumen
-  add('2026-06-17', 21, 'Ghana', 'Panama', 'L', 'group', 0);                  // Azteca
+  // June 17 IST — Groups I, J
+  add('2026-06-17', 0, 'France', 'Senegal', 'I', 'group', 10, 30);               // 00:30 IST
+  add('2026-06-17', 3, 'Iraq', 'Norway', 'I', 'group', 4, 30);                   // 03:30 IST
+  add('2026-06-17', 6, 'Argentina', 'Algeria', 'J', 'group', 5, 30);             // 06:30 IST
+  add('2026-06-17', 9, 'Austria', 'Jordan', 'J', 'group', 6, 30);                // 09:30 IST
 
-  // ============================================================
-  // MATCHDAY 2 — June 18-23 (T1 vs T3, T2 vs T4)
-  // ============================================================
-
-  // June 18 — Group A & B MD2
-  add('2026-06-18', 12, 'Mexico', 'South Korea', 'A', 'group', 9);            // NRG
-  add('2026-06-18', 15, 'South Africa', 'Czech Republic', 'A', 'group', 1);   // Guadalajara
-  add('2026-06-18', 18, 'Canada', 'Qatar', 'B', 'group', 3);                  // BC Place
-  add('2026-06-18', 21, 'Bosnia and Herzegovina', 'Switzerland', 'B', 'group', 13); // Philly
-
-  // June 19 — Group C & D MD2
-  add('2026-06-19', 12, 'Brazil', 'Haiti', 'C', 'group', 7);                  // AT&T
-  add('2026-06-19', 15, 'Morocco', 'Scotland', 'C', 'group', 15);             // Gillette
-  add('2026-06-19', 18, 'United States', 'Australia', 'D', 'group', 13);      // Philly
-  add('2026-06-19', 21, 'Paraguay', 'Turkey', 'D', 'group', 6);               // SoFi
-
-  // June 20 — Group E & F MD2
-  add('2026-06-20', 12, 'Germany', 'Ivory Coast', 'E', 'group', 10);          // Mercedes
-  add('2026-06-20', 15, 'Curacao', 'Ecuador', 'E', 'group', 12);              // Arrowhead
-  add('2026-06-20', 18, 'Netherlands', 'Sweden', 'F', 'group', 5);            // MetLife
-  add('2026-06-20', 21, 'Japan', 'Tunisia', 'F', 'group', 8);                 // Hard Rock
-
-  // June 21 — Group G & H MD2
-  add('2026-06-21', 12, 'Belgium', 'Iran', 'G', 'group', 9);                  // NRG
-  add('2026-06-21', 15, 'Egypt', 'New Zealand', 'G', 'group', 2);             // Monterrey
-  add('2026-06-21', 18, 'Spain', 'Saudi Arabia', 'H', 'group', 7);            // AT&T
-  add('2026-06-21', 21, 'Cape Verde', 'Uruguay', 'H', 'group', 11);           // Lumen
-
-  // June 22 — Group I & J MD2
-  add('2026-06-22', 12, 'France', 'Iraq', 'I', 'group', 5);                   // MetLife
-  add('2026-06-22', 15, 'Senegal', 'Norway', 'I', 'group', 4);                // Toronto
-  add('2026-06-22', 18, 'Argentina', 'Austria', 'J', 'group', 8);             // Hard Rock
-  add('2026-06-22', 21, 'Algeria', 'Jordan', 'J', 'group', 6);                // SoFi
-
-  // June 23 — Group K & L MD2
-  add('2026-06-23', 12, 'Portugal', 'Uzbekistan', 'K', 'group', 13);          // Philly
-  add('2026-06-23', 15, 'Congo DR', 'Colombia', 'K', 'group', 10);            // Mercedes
-  add('2026-06-23', 18, 'England', 'Ghana', 'L', 'group', 12);                // Arrowhead
-  add('2026-06-23', 21, 'Croatia', 'Panama', 'L', 'group', 0);                // Azteca
+  // June 17-18 IST — Groups K, L
+  add('2026-06-17', 22, 'Portugal', 'Congo DR', 'K', 'group', 7, 30);            // 22:30 IST
+  add('2026-06-18', 1, 'England', 'Croatia', 'L', 'group', 11, 30);              // 01:30 IST
+  add('2026-06-18', 4, 'Ghana', 'Panama', 'L', 'group', 0, 30);                  // 04:30 IST
+  add('2026-06-18', 7, 'Uzbekistan', 'Colombia', 'K', 'group', 8, 30);           // 07:30 IST
 
   // ============================================================
-  // MATCHDAY 3 — June 24-28 (T1 vs T4, T2 vs T3, simultaneous)
+  // MATCHDAY 2 — June 18-24 IST (T1 vs T3, T2 vs T4)
   // ============================================================
 
-  // June 24 — Groups A & B final matches
-  add('2026-06-24', 15, 'Mexico', 'Czech Republic', 'A', 'group', 0);         // Azteca
-  add('2026-06-24', 15, 'South Africa', 'South Korea', 'A', 'group', 9);      // NRG
-  add('2026-06-24', 21, 'Canada', 'Switzerland', 'B', 'group', 3);            // BC Place
-  add('2026-06-24', 21, 'Bosnia and Herzegovina', 'Qatar', 'B', 'group', 14); // Levi's
+  // Group A MD2
+  add('2026-06-18', 21, 'Czech Republic', 'South Africa', 'A', 'group', 1, 30);  // 21:30 IST
+  add('2026-06-19', 6, 'Mexico', 'South Korea', 'A', 'group', 9, 30);            // 06:30 IST
 
-  // June 25 — Groups C & D final matches
-  add('2026-06-25', 15, 'Brazil', 'Scotland', 'C', 'group', 5);               // MetLife
-  add('2026-06-25', 15, 'Morocco', 'Haiti', 'C', 'group', 15);                // Gillette
-  add('2026-06-25', 21, 'United States', 'Turkey', 'D', 'group', 6);          // SoFi
-  add('2026-06-25', 21, 'Paraguay', 'Australia', 'D', 'group', 7);            // AT&T
+  // Group B MD2
+  add('2026-06-19', 0, 'Switzerland', 'Bosnia and Herzegovina', 'B', 'group', 13, 30); // 00:30 IST
+  add('2026-06-19', 3, 'Canada', 'Qatar', 'B', 'group', 3, 30);                  // 03:30 IST
 
-  // June 26 — Groups E & F final matches
-  add('2026-06-26', 15, 'Germany', 'Ecuador', 'E', 'group', 13);              // Philly
-  add('2026-06-26', 15, 'Curacao', 'Ivory Coast', 'E', 'group', 10);          // Mercedes
-  add('2026-06-26', 21, 'Netherlands', 'Tunisia', 'F', 'group', 8);           // Hard Rock
-  add('2026-06-26', 21, 'Japan', 'Sweden', 'F', 'group', 12);                 // Arrowhead
+  // Group D MD2
+  add('2026-06-20', 0, 'United States', 'Australia', 'D', 'group', 13, 30);      // 00:30 IST
+  add('2026-06-20', 8, 'Turkey', 'Paraguay', 'D', 'group', 6, 30);               // 08:30 IST
 
-  // June 27 — Groups G & H & I final matches
-  add('2026-06-27', 12, 'Belgium', 'New Zealand', 'G', 'group', 2);           // Monterrey
-  add('2026-06-27', 12, 'Egypt', 'Iran', 'G', 'group', 9);                    // NRG
-  add('2026-06-27', 15, 'Spain', 'Uruguay', 'H', 'group', 11);               // Lumen
-  add('2026-06-27', 15, 'Cape Verde', 'Saudi Arabia', 'H', 'group', 7);       // AT&T
-  add('2026-06-27', 21, 'France', 'Norway', 'I', 'group', 5);                 // MetLife
-  add('2026-06-27', 21, 'Senegal', 'Iraq', 'I', 'group', 4);                  // Toronto
+  // Group C MD2
+  add('2026-06-20', 3, 'Scotland', 'Morocco', 'C', 'group', 15, 30);             // 03:30 IST
+  add('2026-06-20', 6, 'Brazil', 'Haiti', 'C', 'group', 7, 0);                   // 06:00 IST
 
-  // June 28 — Groups J & K & L final matches
-  add('2026-06-28', 12, 'Argentina', 'Jordan', 'J', 'group', 8);              // Hard Rock
-  add('2026-06-28', 12, 'Algeria', 'Austria', 'J', 'group', 6);               // SoFi
-  add('2026-06-28', 15, 'Portugal', 'Colombia', 'K', 'group', 10);            // Mercedes
-  add('2026-06-28', 15, 'Congo DR', 'Uzbekistan', 'K', 'group', 13);          // Philly
-  add('2026-06-28', 21, 'England', 'Panama', 'L', 'group', 12);               // Arrowhead
-  add('2026-06-28', 21, 'Croatia', 'Ghana', 'L', 'group', 0);                 // Azteca
+  // Group F MD2
+  add('2026-06-20', 22, 'Netherlands', 'Sweden', 'F', 'group', 5, 30);           // 22:30 IST
+
+  // Group E MD2
+  add('2026-06-21', 1, 'Germany', 'Ivory Coast', 'E', 'group', 10, 30);          // 01:30 IST
+  add('2026-06-21', 5, 'Ecuador', 'Curacao', 'E', 'group', 12, 30);              // 05:30 IST
+  add('2026-06-21', 9, 'Tunisia', 'Japan', 'F', 'group', 8, 30);                 // 09:30 IST
+
+  // Group H MD2
+  add('2026-06-21', 21, 'Spain', 'Saudi Arabia', 'H', 'group', 7, 30);           // 21:30 IST
+
+  // Group G MD2
+  add('2026-06-22', 0, 'Belgium', 'Iran', 'G', 'group', 9, 30);                  // 00:30 IST
+  add('2026-06-22', 3, 'Uruguay', 'Cape Verde', 'H', 'group', 11, 30);           // 03:30 IST
+  add('2026-06-22', 6, 'New Zealand', 'Egypt', 'G', 'group', 2, 30);             // 06:30 IST
+
+  // Group J MD2
+  add('2026-06-22', 22, 'Argentina', 'Austria', 'J', 'group', 8, 30);            // 22:30 IST
+
+  // Group I MD2
+  add('2026-06-23', 2, 'France', 'Iraq', 'I', 'group', 5, 30);                   // 02:30 IST
+  add('2026-06-23', 5, 'Norway', 'Senegal', 'I', 'group', 4, 30);                // 05:30 IST
+  add('2026-06-23', 8, 'Jordan', 'Algeria', 'J', 'group', 6, 30);                // 08:30 IST
+
+  // Group K MD2
+  add('2026-06-23', 22, 'Portugal', 'Uzbekistan', 'K', 'group', 13, 30);         // 22:30 IST
+
+  // Group L MD2
+  add('2026-06-24', 1, 'England', 'Ghana', 'L', 'group', 12, 30);               // 01:30 IST
+  add('2026-06-24', 4, 'Panama', 'Croatia', 'L', 'group', 0, 30);               // 04:30 IST
+  add('2026-06-24', 7, 'Colombia', 'Congo DR', 'K', 'group', 10, 30);            // 07:30 IST
 
   // ============================================================
-  // ROUND OF 32 — July 1-4 (16 matches, 4/day)
+  // MATCHDAY 3 — June 24-28 IST (T1 vs T4, T2 vs T3, simultaneous)
   // ============================================================
-  const r32Matches = [
-    ['2026-07-01', 12, 'Winner A', 'Third Place C/D/E', 5],
-    ['2026-07-01', 15, 'Runner-up A', 'Runner-up B', 7],
-    ['2026-07-01', 18, 'Winner B', 'Third Place A/D/F', 14],
-    ['2026-07-01', 21, 'Winner C', 'Third Place A/B/F', 8],
-    ['2026-07-02', 12, 'Runner-up C', 'Runner-up D', 9],
-    ['2026-07-02', 15, 'Winner D', 'Third Place B/E/F', 6],
-    ['2026-07-02', 18, 'Winner E', 'Third Place G/H/I', 10],
-    ['2026-07-02', 21, 'Runner-up E', 'Runner-up F', 0],
-    ['2026-07-03', 12, 'Winner F', 'Third Place G/I/J', 11],
-    ['2026-07-03', 15, 'Winner G', 'Third Place H/J/K', 4],
-    ['2026-07-03', 18, 'Runner-up G', 'Runner-up H', 13],
-    ['2026-07-03', 21, 'Winner H', 'Third Place I/K/L', 12],
-    ['2026-07-04', 12, 'Winner I', 'Third Place J/K/L', 5],
-    ['2026-07-04', 15, 'Runner-up I', 'Runner-up J', 3],
-    ['2026-07-04', 18, 'Winner J', 'Third Place G/H/L', 2],
-    ['2026-07-04', 21, 'Winner K', 'Runner-up L', 7],
-  ] as const;
 
-  for (const [date, hour, home, away, vi] of r32Matches) {
-    add(date, hour, home, away, 'R32', 'r32', vi);
+  // Group B final matches
+  add('2026-06-25', 0, 'Switzerland', 'Canada', 'B', 'group', 3, 30);            // 00:30 IST
+  add('2026-06-25', 0, 'Bosnia and Herzegovina', 'Qatar', 'B', 'group', 14, 30); // 00:30 IST
+
+  // Group C final matches
+  add('2026-06-25', 3, 'Scotland', 'Brazil', 'C', 'group', 5, 30);              // 03:30 IST
+  add('2026-06-25', 3, 'Morocco', 'Haiti', 'C', 'group', 15, 30);               // 03:30 IST
+
+  // Group A final matches
+  add('2026-06-25', 6, 'Czech Republic', 'Mexico', 'A', 'group', 0, 30);        // 06:30 IST
+  add('2026-06-25', 6, 'South Africa', 'South Korea', 'A', 'group', 9, 30);     // 06:30 IST
+
+  // Group E final matches
+  add('2026-06-26', 1, 'Curacao', 'Ivory Coast', 'E', 'group', 10, 30);         // 01:30 IST
+  add('2026-06-26', 1, 'Ecuador', 'Germany', 'E', 'group', 13, 30);             // 01:30 IST
+
+  // Group F final matches
+  add('2026-06-26', 4, 'Japan', 'Sweden', 'F', 'group', 12, 30);               // 04:30 IST
+  add('2026-06-26', 4, 'Tunisia', 'Netherlands', 'F', 'group', 8, 30);          // 04:30 IST
+
+  // Group D final matches
+  add('2026-06-26', 7, 'Turkey', 'United States', 'D', 'group', 6, 30);         // 07:30 IST
+  add('2026-06-26', 7, 'Paraguay', 'Australia', 'D', 'group', 7, 30);           // 07:30 IST
+
+  // Group I final matches
+  add('2026-06-27', 0, 'Norway', 'France', 'I', 'group', 5, 30);               // 00:30 IST
+  add('2026-06-27', 0, 'Senegal', 'Iraq', 'I', 'group', 4, 30);                // 00:30 IST
+
+  // Group H final matches
+  add('2026-06-27', 5, 'Cabo Verde', 'Saudi Arabia', 'H', 'group', 7, 30);     // 05:30 IST
+  add('2026-06-27', 5, 'Uruguay', 'Spain', 'H', 'group', 11, 30);              // 05:30 IST
+
+  // Group G final matches
+  add('2026-06-27', 8, 'Egypt', 'Iran', 'G', 'group', 9, 30);                  // 08:30 IST
+  add('2026-06-27', 8, 'New Zealand', 'Belgium', 'G', 'group', 2, 30);          // 08:30 IST
+
+  // Group L final matches
+  add('2026-06-28', 2, 'Panama', 'England', 'L', 'group', 12, 30);             // 02:30 IST
+  add('2026-06-28', 2, 'Croatia', 'Ghana', 'L', 'group', 0, 30);               // 02:30 IST
+
+  // Group K final matches
+  add('2026-06-28', 5, 'Colombia', 'Portugal', 'K', 'group', 10, 0);           // 05:00 IST
+  add('2026-06-28', 5, 'Congo DR', 'Uzbekistan', 'K', 'group', 13, 0);         // 05:00 IST
+
+  // Group J final matches
+  add('2026-06-28', 7, 'Algeria', 'Austria', 'J', 'group', 6, 30);             // 07:30 IST
+  add('2026-06-28', 7, 'Jordan', 'Argentina', 'J', 'group', 8, 30);            // 07:30 IST
+
+  // ============================================================
+  // ROUND OF 32 — Jun 29 - Jul 4 IST (from image schedule)
+  // ============================================================
+  const r32Matches: [string, number, number, string, string, number][] = [
+    ['2026-06-29', 22, 30, 'Winner C', 'Runner-up F', 9],                        // 22:30 IST — Houston
+    ['2026-06-30', 0, 30, 'Runner-up A', 'Runner-up B', 6],                      // 00:30 IST — SoFi
+    ['2026-06-30', 2, 0, 'Winner E', 'Third Place A/B/C/D/F', 5],                // 02:00 IST — MetLife
+    ['2026-06-30', 6, 30, 'Winner F', 'Runner-up C', 2],                         // 06:30 IST — Monterrey
+    ['2026-06-30', 22, 30, 'Runner-up E', 'Runner-up I', 7],                     // 22:30 IST — Dallas
+    ['2026-07-01', 2, 30, 'Winner I', 'Third Place C/D/F/G/H', 5],               // 02:30 IST — MetLife
+    ['2026-07-01', 6, 30, 'Winner A', 'Third Place C/E/F/H/I', 0],               // 06:30 IST — Mexico City
+    ['2026-07-01', 21, 30, 'Winner L', 'Third Place E/H/I/J/K', 10],             // 21:30 IST — Atlanta
+    ['2026-07-02', 5, 30, 'Winner D', 'Third Place B/E/F/I/J', 6],               // 05:30 IST — SoFi
+    ['2026-07-02', 5, 30, 'Winner H', 'Runner-up J', 11],                        // 05:30 IST — Seattle
+    ['2026-07-03', 0, 0, 'Winner K', 'Runner-up L', 4],                          // 00:00 IST — Toronto (actually 00:30?)
+    ['2026-07-03', 0, 0, 'Runner-up H', 'Runner-up J', 6],                       // 00:00 IST — SoFi
+    ['2026-07-03', 3, 30, 'Winner J', 'Runner-up H', 8],                         // 03:30 IST — Miami
+    ['2026-07-03', 8, 30, 'Winner B', 'Third Place E/F/G/J', 3],                 // 08:30 IST — Vancouver
+    ['2026-07-03', 23, 30, 'Runner-up D', 'Runner-up G', 7],                     // 23:30 IST — Dallas
+    ['2026-07-04', 7, 0, 'Winner K', 'Third Place D/E/I/J/L', 12],               // 07:00 IST — Kansas City
+  ];
+
+  for (const [date, hour, min, home, away, vi] of r32Matches) {
+    add(date, hour, home, away, 'R32', 'r32', vi, min);
   }
 
   // ============================================================
-  // ROUND OF 16 — July 5-8 (8 matches, 2/day)
+  // ROUND OF 16 — Jul 5-8 IST (from image schedule)
   // ============================================================
-  const r16Matches = [
-    ['2026-07-05', 15, 'R32 Winner 1', 'R32 Winner 2', 5],
-    ['2026-07-05', 21, 'R32 Winner 3', 'R32 Winner 4', 7],
-    ['2026-07-06', 15, 'R32 Winner 5', 'R32 Winner 6', 6],
-    ['2026-07-06', 21, 'R32 Winner 7', 'R32 Winner 8', 0],
-    ['2026-07-07', 15, 'R32 Winner 9', 'R32 Winner 10', 8],
-    ['2026-07-07', 21, 'R32 Winner 11', 'R32 Winner 12', 11],
-    ['2026-07-08', 15, 'R32 Winner 13', 'R32 Winner 14', 9],
-    ['2026-07-08', 21, 'R32 Winner 15', 'R32 Winner 16', 10],
-  ] as const;
+  const r16Matches: [string, number, number, string, string, number][] = [
+    ['2026-07-05', 2, 30, 'R32 Winner 1', 'R32 Winner 2', 13],                   // 02:30 IST — Philadelphia
+    ['2026-07-06', 1, 30, 'R32 Winner 3', 'R32 Winner 4', 5],                    // 01:30 IST — NY/NJ
+    ['2026-07-06', 5, 30, 'R32 Winner 5', 'R32 Winner 6', 0],                    // 05:30 IST — Mexico City
+    ['2026-07-04', 22, 30, 'R32 Winner 7', 'R32 Winner 8', 9],                   // 22:30 IST — Houston
+    ['2026-07-07', 0, 30, 'R32 Winner 9', 'R32 Winner 10', 7],                   // 00:30 IST — Dallas (AT&T)
+    ['2026-07-07', 21, 30, 'R32 Winner 11', 'R32 Winner 12', 10],                // 21:30 IST — Atlanta
+    ['2026-07-08', 1, 30, 'R32 Winner 13', 'R32 Winner 14', 3],                  // 01:30 IST — Vancouver
+    ['2026-07-12', 6, 30, 'R32 Winner 15', 'R32 Winner 16', 12],                 // 06:30 IST — Kansas City
+  ];
 
-  for (const [date, hour, home, away, vi] of r16Matches) {
-    add(date, hour, home, away, 'R16', 'r16', vi);
+  for (const [date, hour, min, home, away, vi] of r16Matches) {
+    add(date, hour, home, away, 'R16', 'r16', vi, min);
   }
 
   // ============================================================
-  // QUARTER-FINALS — July 10-11
+  // QUARTER-FINALS — Jul 10-12 IST (from image schedule)
   // ============================================================
-  add('2026-07-10', 15, 'R16 Winner 1', 'R16 Winner 2', 'QF', 'qf', 5);      // MetLife
-  add('2026-07-10', 21, 'R16 Winner 3', 'R16 Winner 4', 'QF', 'qf', 6);      // SoFi
-  add('2026-07-11', 15, 'R16 Winner 5', 'R16 Winner 6', 'QF', 'qf', 7);      // AT&T
-  add('2026-07-11', 21, 'R16 Winner 7', 'R16 Winner 8', 'QF', 'qf', 9);      // NRG
+  add('2026-07-10', 1, 'R16 Winner 1', 'R16 Winner 2', 'QF', 'qf', 15, 30);    // 01:30 IST — Boston
+  add('2026-07-11', 0, 'R16 Winner 3', 'R16 Winner 4', 'QF', 'qf', 6, 30);     // 00:30 IST — Dallas (SoFi? image says Dallas)
+  add('2026-07-12', 2, 'R16 Winner 5', 'R16 Winner 6', 'QF', 'qf', 8, 30);     // 02:30 IST — Miami
+  add('2026-07-12', 6, 'R16 Winner 7', 'R16 Winner 8', 'QF', 'qf', 0, 30);     // 06:30 IST — Mexico City
 
   // ============================================================
-  // SEMI-FINALS — July 14-15
+  // SEMI-FINALS — Jul 15-16 IST (from image schedule)
   // ============================================================
-  add('2026-07-14', 20, 'QF Winner 1', 'QF Winner 2', 'SF', 'sf', 5);        // MetLife
-  add('2026-07-15', 20, 'QF Winner 3', 'QF Winner 4', 'SF', 'sf', 7);        // AT&T
+  add('2026-07-15', 0, 'QF Winner 1', 'QF Winner 2', 'SF', 'sf', 7, 30);       // 00:30 IST — Dallas
+  add('2026-07-16', 0, 'QF Winner 3', 'QF Winner 4', 'SF', 'sf', 10, 30);      // 00:30 IST — Atlanta
 
   // ============================================================
-  // THIRD PLACE — July 18
+  // THIRD PLACE — Jul 19 IST (from image schedule)
   // ============================================================
-  add('2026-07-18', 15, 'SF Loser 1', 'SF Loser 2', '3P', 'third_place', 9); // NRG
+  add('2026-07-19', 2, 'SF Loser 1', 'SF Loser 2', '3P', 'third_place', 8, 30); // 02:30 IST — Miami
 
   // ============================================================
-  // FINAL — July 19
+  // FINAL — Jul 20 IST (from image schedule)
   // ============================================================
-  add('2026-07-19', 15, 'SF Winner 1', 'SF Winner 2', 'FIN', 'final', 5);     // MetLife
+  add('2026-07-20', 0, 'SF Winner 1', 'SF Winner 2', 'FIN', 'final', 5, 30);    // 00:30 IST — MetLife
 
   return fixtures;
 }
