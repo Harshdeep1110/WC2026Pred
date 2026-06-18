@@ -27,6 +27,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'All positions required' }, { status: 400 });
   }
 
+  // Check if globally locked
+  const lockSetting = await prisma.systemSetting.findUnique({ where: { key: 'PRE_TOURNAMENT_LOCKED' } });
+  if (lockSetting?.value === 'true') {
+    return NextResponse.json({ error: 'Group standings are globally locked' }, { status: 423 });
+  }
+
   // Check if locked
   const existing = await prisma.groupStandingPrediction.findUnique({
     where: { userId_group: { userId, group } },

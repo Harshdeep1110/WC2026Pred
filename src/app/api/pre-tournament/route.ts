@@ -21,6 +21,12 @@ export async function POST(req: NextRequest) {
   const userId = session.user.id!;
   const { goldenBootPlayer, mostAssistsPlayer, goldenGlovePlayer } = await req.json();
 
+  // Check if globally locked
+  const lockSetting = await prisma.systemSetting.findUnique({ where: { key: 'PRE_TOURNAMENT_LOCKED' } });
+  if (lockSetting?.value === 'true') {
+    return NextResponse.json({ error: 'Pre-tournament predictions are globally locked' }, { status: 423 });
+  }
+
   // Check if already locked
   const existing = await prisma.preTournamentPrediction.findUnique({
     where: { userId },
