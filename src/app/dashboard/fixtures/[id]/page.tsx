@@ -330,8 +330,8 @@ export default function FixtureDetailPage() {
                 <span className={`tier-badge tier-${prediction.scoringTier}`}>{prediction.scoringTier.replace('_', ' ').toUpperCase()}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span>Base Points</span>
-                <span style={{ fontWeight: 600 }}>+{prediction.scoringTier === 'exact' ? 10 : prediction.scoringTier === 'goal_diff' ? 5 : prediction.scoringTier === 'result' ? 3 : 0}</span>
+                <span>Base Points {['r32','r16','qf','sf','third_place','final'].includes(fixture.stage) ? '(Knockout)' : '(Group)'}</span>
+                <span style={{ fontWeight: 600 }}>+{prediction.scoringTier === 'exact' ? (['r32','r16','qf','sf','third_place','final'].includes(fixture.stage) ? 20 : 10) : prediction.scoringTier === 'goal_diff' ? (['r32','r16','qf','sf','third_place','final'].includes(fixture.stage) ? 10 : 5) : prediction.scoringTier === 'result' ? (['r32','r16','qf','sf','third_place','final'].includes(fixture.stage) ? 5 : 3) : 0}</span>
               </div>
               {chipsPlayedHere.map(c => {
                 if (c.type === 'banker') return <div key="banker" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--accent-gold)' }}><span>Banker Chip</span><span style={{ fontWeight: 600 }}>x2</span></div>;

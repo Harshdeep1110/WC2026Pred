@@ -249,25 +249,25 @@ function generateFixtures(): FixtureData[] {
   add('2026-06-28', 7, 'Jordan', 'Argentina', 'J', 'group', 8, 30);            // 07:30 IST
 
   // ============================================================
-  // ROUND OF 32 — Jun 29 - Jul 4 IST (from image schedule)
+  // ROUND OF 32 — Jun 29 - Jul 4 IST (actual fixtures)
   // ============================================================
   const r32Matches: [string, number, number, string, string, number][] = [
-    ['2026-06-29', 22, 30, 'Winner C', 'Runner-up F', 9],                        // 22:30 IST — Houston
-    ['2026-06-30', 0, 30, 'Runner-up A', 'Runner-up B', 6],                      // 00:30 IST — SoFi
-    ['2026-06-30', 2, 0, 'Winner E', 'Third Place A/B/C/D/F', 5],                // 02:00 IST — MetLife
-    ['2026-06-30', 6, 30, 'Winner F', 'Runner-up C', 2],                         // 06:30 IST — Monterrey
-    ['2026-06-30', 22, 30, 'Runner-up E', 'Runner-up I', 7],                     // 22:30 IST — Dallas
-    ['2026-07-01', 2, 30, 'Winner I', 'Third Place C/D/F/G/H', 5],               // 02:30 IST — MetLife
-    ['2026-07-01', 6, 30, 'Winner A', 'Third Place C/E/F/H/I', 0],               // 06:30 IST — Mexico City
-    ['2026-07-01', 21, 30, 'Winner L', 'Third Place E/H/I/J/K', 10],             // 21:30 IST — Atlanta
-    ['2026-07-02', 5, 30, 'Winner D', 'Third Place B/E/F/I/J', 6],               // 05:30 IST — SoFi
-    ['2026-07-02', 5, 30, 'Winner H', 'Runner-up J', 11],                        // 05:30 IST — Seattle
-    ['2026-07-03', 0, 0, 'Winner K', 'Runner-up L', 4],                          // 00:00 IST — Toronto (actually 00:30?)
-    ['2026-07-03', 0, 0, 'Runner-up H', 'Runner-up J', 6],                       // 00:00 IST — SoFi
-    ['2026-07-03', 3, 30, 'Winner J', 'Runner-up H', 8],                         // 03:30 IST — Miami
-    ['2026-07-03', 8, 30, 'Winner B', 'Third Place E/F/G/J', 3],                 // 08:30 IST — Vancouver
-    ['2026-07-03', 23, 30, 'Runner-up D', 'Runner-up G', 7],                     // 23:30 IST — Dallas
-    ['2026-07-04', 7, 0, 'Winner K', 'Third Place D/E/I/J/L', 12],               // 07:00 IST — Kansas City
+    ['2026-06-29', 0, 30, 'South Africa', 'Canada', 6],                          // 00:30 IST
+    ['2026-06-29', 22, 30, 'Brazil', 'Japan', 9],                                // 22:30 IST
+    ['2026-06-30', 2, 0, 'Germany', 'Paraguay', 5],                              // 02:00 IST
+    ['2026-06-30', 6, 30, 'Netherlands', 'Morocco', 2],                          // 06:30 IST
+    ['2026-06-30', 22, 30, 'Ivory Coast', 'Norway', 7],                          // 22:30 IST
+    ['2026-07-01', 2, 30, 'France', 'Sweden', 5],                                // 02:30 IST
+    ['2026-07-01', 6, 30, 'Mexico', 'Ecuador', 0],                               // 06:30 IST
+    ['2026-07-01', 21, 30, 'England', 'DR Congo', 10],                           // 21:30 IST
+    ['2026-07-02', 1, 30, 'Belgium', 'Senegal', 6],                              // 01:30 IST
+    ['2026-07-02', 5, 30, 'USA', 'Bosnia and Herzegovina', 11],                  // 05:30 IST
+    ['2026-07-03', 0, 30, 'Spain', 'Austria', 4],                                // 00:30 IST
+    ['2026-07-03', 4, 30, 'Portugal', 'Croatia', 6],                             // 04:30 IST
+    ['2026-07-03', 8, 30, 'Switzerland', 'Algeria', 3],                          // 08:30 IST
+    ['2026-07-03', 23, 30, 'Australia', 'Egypt', 7],                             // 23:30 IST
+    ['2026-07-04', 3, 30, 'Argentina', 'Cape Verde', 8],                         // 03:30 IST
+    ['2026-07-04', 7, 0, 'Colombia', 'Ghana', 12],                               // 07:00 IST
   ];
 
   for (const [date, hour, min, home, away, vi] of r32Matches) {

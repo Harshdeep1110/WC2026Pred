@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert';
-import { computeScoringTier, computeFinalPoints, TIER_POINTS } from './scoring';
+import { computeScoringTier, computeFinalPoints, TIER_POINTS, KNOCKOUT_TIER_POINTS, getTierPoints } from './scoring';
 
 describe('Scoring Engine', () => {
   describe('computeScoringTier', () => {
@@ -35,7 +35,21 @@ describe('Scoring Engine', () => {
     });
   });
 
-  describe('computeFinalPoints', () => {
+  describe('getTierPoints', () => {
+    test('returns group points for group stage', () => {
+      assert.strictEqual(getTierPoints('group'), TIER_POINTS);
+    });
+
+    test('returns knockout points for r32', () => {
+      assert.strictEqual(getTierPoints('r32'), KNOCKOUT_TIER_POINTS);
+    });
+
+    test('returns knockout points for final', () => {
+      assert.strictEqual(getTierPoints('final'), KNOCKOUT_TIER_POINTS);
+    });
+  });
+
+  describe('computeFinalPoints — group stage', () => {
     const baseMods = { hasBanker: false, hasGoalFest: false, halftimeSubUsed: false, isRivalBlocked: false, totalGoals: 2 };
 
     test('base exact score', () => {
@@ -85,6 +99,40 @@ describe('Scoring Engine', () => {
       // So this test is just verifying the function logic as implemented.
       const pts = computeFinalPoints('result', { ...baseMods, isRivalBlocked: true });
       assert.strictEqual(pts, TIER_POINTS.result); // Only affects 'exact' tier!
+    });
+  });
+
+  describe('computeFinalPoints — knockout stage', () => {
+    const baseMods = { hasBanker: false, hasGoalFest: false, halftimeSubUsed: false, isRivalBlocked: false, totalGoals: 2 };
+
+    test('knockout exact score awards 20 points', () => {
+      const pts = computeFinalPoints('exact', baseMods, 'r32');
+      assert.strictEqual(pts, 20);
+    });
+
+    test('knockout goal_diff awards 10 points', () => {
+      const pts = computeFinalPoints('goal_diff', baseMods, 'r16');
+      assert.strictEqual(pts, 10);
+    });
+
+    test('knockout result awards 5 points', () => {
+      const pts = computeFinalPoints('result', baseMods, 'qf');
+      assert.strictEqual(pts, 5);
+    });
+
+    test('knockout incorrect awards 0 points', () => {
+      const pts = computeFinalPoints('incorrect', baseMods, 'final');
+      assert.strictEqual(pts, 0);
+    });
+
+    test('knockout banker doubles 20 to 40', () => {
+      const pts = computeFinalPoints('exact', { ...baseMods, hasBanker: true }, 'sf');
+      assert.strictEqual(pts, 40);
+    });
+
+    test('knockout goalfest + banker quadruples to 80', () => {
+      const pts = computeFinalPoints('exact', { ...baseMods, hasBanker: true, hasGoalFest: true, totalGoals: 5 }, 'r32');
+      assert.strictEqual(pts, 80);
     });
   });
 });

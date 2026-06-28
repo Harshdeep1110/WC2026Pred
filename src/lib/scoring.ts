@@ -1,4 +1,4 @@
-// Scoring tier point values
+// Scoring tier point values — group stage
 export const TIER_POINTS = {
   exact: 10,
   goal_diff: 5,
@@ -6,6 +6,25 @@ export const TIER_POINTS = {
   incorrect: 0,
   auto_zero: 0,
 } as const;
+
+// Scoring tier point values — knockout rounds (R32 onwards)
+export const KNOCKOUT_TIER_POINTS = {
+  exact: 20,
+  goal_diff: 10,
+  result: 5,
+  incorrect: 0,
+  auto_zero: 0,
+} as const;
+
+const KNOCKOUT_STAGES = new Set(['r32', 'r16', 'qf', 'sf', 'third_place', 'final']);
+
+export function isKnockoutStage(stage: string): boolean {
+  return KNOCKOUT_STAGES.has(stage);
+}
+
+export function getTierPoints(stage: string): typeof TIER_POINTS {
+  return isKnockoutStage(stage) ? KNOCKOUT_TIER_POINTS : TIER_POINTS;
+}
 
 // Pre-tournament award points
 export const PRE_TOURNAMENT_POINTS = 20;
@@ -69,8 +88,9 @@ export function computeScoringTier(input: ScoringInput): ScoringTier {
   return 'result';
 }
 
-export function computeFinalPoints(tier: ScoringTier, modifiers: ChipModifiers): number {
-  let points: number = TIER_POINTS[tier];
+export function computeFinalPoints(tier: ScoringTier, modifiers: ChipModifiers, stage: string = 'group'): number {
+  const tierTable = getTierPoints(stage);
+  let points: number = tierTable[tier];
 
   // GoalFest check — if total goals <= 3 and GoalFest was played, zero out
   if (modifiers.hasGoalFest && modifiers.totalGoals <= 3) {

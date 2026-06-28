@@ -20,10 +20,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const totalGoals = homeScore + awayScore;
 
   // Update fixture
-  await prisma.fixture.update({
+  const updatedFixture = await prisma.fixture.update({
     where: { id: fixtureId },
     data: { homeScore, awayScore, totalGoals, status: 'full_time' },
   });
+  const fixtureStage = updatedFixture.stage;
 
   // Lock all unlocked predictions
   await prisma.prediction.updateMany({
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       halftimeSubUsed: pred.halftimeSubUsed,
       isRivalBlocked: !!rivalBlock,
       totalGoals,
-    });
+    }, fixtureStage);
 
     await prisma.prediction.update({
       where: { id: pred.id },
