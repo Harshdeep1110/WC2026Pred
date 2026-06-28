@@ -22,7 +22,7 @@ export function isKnockoutStage(stage: string): boolean {
   return KNOCKOUT_STAGES.has(stage);
 }
 
-export function getTierPoints(stage: string): typeof TIER_POINTS {
+export function getTierPoints(stage: string): Record<string, number> {
   return isKnockoutStage(stage) ? KNOCKOUT_TIER_POINTS : TIER_POINTS;
 }
 
