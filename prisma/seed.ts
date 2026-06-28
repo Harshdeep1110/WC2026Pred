@@ -352,6 +352,7 @@ async function main() {
       { userId: admin.id, type: 'rival_block', status: 'available' },
       { userId: admin.id, type: 'halftime_sub', status: 'available' },
       { userId: admin.id, type: 'goalfest', status: 'available' },
+      { userId: admin.id, type: 'defensive_masterclass', status: 'available' },
     ],
   });
 

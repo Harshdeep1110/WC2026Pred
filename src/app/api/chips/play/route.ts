@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'chipType and fixtureId are required' }, { status: 400 });
   }
 
-  const validTypes = ['banker', 'rival_block', 'halftime_sub', 'goalfest'];
+  const validTypes = ['banker', 'rival_block', 'halftime_sub', 'goalfest', 'defensive_masterclass'];
   if (!validTypes.includes(chipType)) {
     return NextResponse.json({ error: 'Invalid chip type' }, { status: 400 });
   }
@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
       rival_block: '🚨 Rival Block',
       halftime_sub: '⏱️ Halftime Sub',
       goalfest: '🎯 Goal-Fest',
+      defensive_masterclass: '🛡️ Defensive Masterclass'
     };
 
     const user = await tx.user.findUnique({ where: { id: userId } });

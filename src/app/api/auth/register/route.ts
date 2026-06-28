@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
           { userId: newUser.id, type: 'rival_block', status: 'available' },
           { userId: newUser.id, type: 'halftime_sub', status: 'available' },
           { userId: newUser.id, type: 'goalfest', status: 'available' },
+          { userId: newUser.id, type: 'defensive_masterclass', status: 'available' },
         ],
       });
 

@@ -44,9 +44,11 @@ export interface ScoringInput {
 export interface ChipModifiers {
   hasBanker: boolean;
   hasGoalFest: boolean;
+  hasDefensiveMasterclass: boolean;
   halftimeSubUsed: boolean;
   isRivalBlocked: boolean;
   totalGoals: number;
+  hasCleanSheet: boolean;
 }
 
 function getOutcome(home: number, away: number): 'home_win' | 'away_win' | 'draw' {
@@ -92,22 +94,26 @@ export function computeFinalPoints(tier: ScoringTier, modifiers: ChipModifiers, 
   const tierTable = getTierPoints(stage);
   let points: number = tierTable[tier];
 
-  // GoalFest check — if total goals <= 3 and GoalFest was played, zero out
-  if (modifiers.hasGoalFest && modifiers.totalGoals <= 3) {
-    return 0;
+  // GoalFest: +3 points for every goal scored in the match
+  if (modifiers.hasGoalFest) {
+    points += modifiers.totalGoals * 3;
   }
 
-  // Banker multiplier
+  // Defensive Masterclass: +15 if clean sheet, -8 if no clean sheet
+  if (modifiers.hasDefensiveMasterclass) {
+    if (modifiers.hasCleanSheet) {
+      points += 15;
+    } else {
+      points -= 8;
+    }
+  }
+
+  // Banker multiplier (applies after GoalFest and Defensive Masterclass additions)
   if (modifiers.hasBanker) {
     points *= 2;
   }
 
-  // GoalFest multiplier (only fires if total_goals >= 4)
-  if (modifiers.hasGoalFest && modifiers.totalGoals >= 4) {
-    points *= 2;
-  }
-
-  // Halftime sub penalty
+  // Halftime sub penalty (applies to the whole total)
   if (modifiers.halftimeSubUsed) {
     points = Math.floor(points * 0.5);
   }

@@ -21,12 +21,13 @@ interface ChipData {
   targetUser: { id: string; displayName: string } | null;
 }
 
-const CHIP_TYPES = ['banker', 'rival_block', 'halftime_sub', 'goalfest'];
+const CHIP_TYPES = ['banker', 'rival_block', 'halftime_sub', 'goalfest', 'defensive_masterclass'];
 const CHIP_LABELS: Record<string, string> = {
   banker: '🏦 Banker',
   rival_block: '🎯 Rival Block',
   halftime_sub: '🔄 Halftime Sub',
   goalfest: '⚡ Goal-Fest',
+  defensive_masterclass: '🛡️ Defensive Masterclass'
 };
 
 export default function AdminUsersPage() {

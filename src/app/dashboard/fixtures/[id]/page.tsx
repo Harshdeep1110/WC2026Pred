@@ -193,7 +193,8 @@ export default function FixtureDetailPage() {
     banker: '🏦 Banker',
     rival_block: '🚨 Rival Block',
     halftime_sub: '⏱️ Halftime Sub',
-    goalfest: '🎯 Goal-Fest'
+    goalfest: '🎯 Goal-Fest',
+    defensive_masterclass: '🛡️ Defensive Masterclass'
   };
 
   async function unplayChip(chipId: string) {
@@ -338,8 +339,12 @@ export default function FixtureDetailPage() {
                 if (c.type === 'halftime_sub') return <div key="ht" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--accent-green)' }}><span>Halftime Sub</span><span style={{ fontWeight: 600 }}>-50%</span></div>;
                 if (c.type === 'goalfest') {
                   const totalGoals = (fixture.homeScore || 0) + (fixture.awayScore || 0);
-                  if (totalGoals >= 4) return <div key="gf" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#A020F0' }}><span>Goal-Fest Success</span><span style={{ fontWeight: 600 }}>x2</span></div>;
-                  else return <div key="gf-fail" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--danger)' }}><span>Goal-Fest Failed ({"<"}4 goals)</span><span style={{ fontWeight: 600 }}>0 pts</span></div>;
+                  return <div key="gf" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: '#A020F0' }}><span>Goal-Fest ({totalGoals} goals)</span><span style={{ fontWeight: 600 }}>+{totalGoals * 3} pts</span></div>;
+                }
+                if (c.type === 'defensive_masterclass') {
+                  const hasCleanSheet = fixture.homeScore === 0 || fixture.awayScore === 0;
+                  if (hasCleanSheet) return <div key="dm" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--accent-green)' }}><span>Defensive Masterclass Success</span><span style={{ fontWeight: 600 }}>+15 pts</span></div>;
+                  else return <div key="dm-fail" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, color: 'var(--danger)' }}><span>Defensive Masterclass Failed</span><span style={{ fontWeight: 600 }}>-8 pts</span></div>;
                 }
                 return null;
               })}
@@ -474,6 +479,7 @@ export default function FixtureDetailPage() {
                       {cp.chips.includes('banker') && <span title="Banker" style={{ fontSize: '0.8rem' }}>🏦</span>}
                       {cp.chips.includes('halftime_sub') && <span title="Halftime Sub" style={{ fontSize: '0.8rem' }}>⏱️</span>}
                       {cp.chips.includes('goalfest') && <span title="Goal-Fest" style={{ fontSize: '0.8rem' }}>🎯</span>}
+                      {cp.chips.includes('defensive_masterclass') && <span title="Defensive Masterclass" style={{ fontSize: '0.8rem' }}>🛡️</span>}
                       {cp.chips.includes('rival_block') && <span title="Rival Block Played" style={{ fontSize: '0.8rem' }}>🚨</span>}
                       {cp.isRivalBlocked && <span title="Blocked by Rival!" style={{ fontSize: '0.8rem' }}>💥</span>}
                     </div>

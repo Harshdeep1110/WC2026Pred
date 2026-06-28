@@ -82,9 +82,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const points = computeFinalPoints(tier, {
       hasBanker: userChips.some((c: any) => c.type === 'banker'),
       hasGoalFest: userChips.some((c: any) => c.type === 'goalfest'),
+      hasDefensiveMasterclass: userChips.some((c: any) => c.type === 'defensive_masterclass'),
       halftimeSubUsed: pred.halftimeSubUsed,
       isRivalBlocked: !!rivalBlock,
       totalGoals,
+      hasCleanSheet: homeScore === 0 || awayScore === 0,
     }, fixtureStage);
 
     await prisma.prediction.update({

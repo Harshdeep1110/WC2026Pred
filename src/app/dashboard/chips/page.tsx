@@ -9,7 +9,8 @@ const chipInfo: Record<string, { emoji: string; name: string; desc: string; cssC
   banker: { emoji: '🏦', name: 'The Banker', desc: 'Doubles all points from a fixture', cssClass: 'banker' },
   rival_block: { emoji: '🚨', name: 'Rival Block', desc: 'Wipe a rival\'s exact score to 0', cssClass: 'rival-block' },
   halftime_sub: { emoji: '⏱️', name: 'Halftime Sub', desc: 'Change prediction at halftime (50% penalty)', cssClass: 'halftime-sub' },
-  goalfest: { emoji: '🎯', name: 'Goal-Fest', desc: '4+ goals = ×2 points, ≤3 goals = 0', cssClass: 'goalfest' },
+  goalfest: { emoji: '🎯', name: 'Goal-Fest', desc: '+3 points for every goal scored in the match', cssClass: 'goalfest' },
+  defensive_masterclass: { emoji: '🛡️', name: 'Defensive Masterclass', desc: 'Clean sheet = +15 pts, No clean sheet = -8 pts', cssClass: 'defensive-masterclass' },
 };
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());

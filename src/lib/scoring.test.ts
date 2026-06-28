@@ -50,7 +50,15 @@ describe('Scoring Engine', () => {
   });
 
   describe('computeFinalPoints — group stage', () => {
-    const baseMods = { hasBanker: false, hasGoalFest: false, halftimeSubUsed: false, isRivalBlocked: false, totalGoals: 2 };
+    const baseMods = { 
+      hasBanker: false, 
+      hasGoalFest: false, 
+      hasDefensiveMasterclass: false,
+      halftimeSubUsed: false, 
+      isRivalBlocked: false, 
+      totalGoals: 2,
+      hasCleanSheet: false
+    };
 
     test('base exact score', () => {
       const pts = computeFinalPoints('exact', baseMods);
@@ -62,19 +70,30 @@ describe('Scoring Engine', () => {
       assert.strictEqual(pts, TIER_POINTS.exact * 2);
     });
 
-    test('goalfest zeros points if total goals <= 3', () => {
+    test('goalfest adds 3 points per goal (e.g. 3 goals = +9)', () => {
       const pts = computeFinalPoints('exact', { ...baseMods, hasGoalFest: true, totalGoals: 3 });
-      assert.strictEqual(pts, 0);
+      assert.strictEqual(pts, TIER_POINTS.exact + (3 * 3));
     });
 
-    test('goalfest doubles points if total goals >= 4', () => {
-      const pts = computeFinalPoints('exact', { ...baseMods, hasGoalFest: true, totalGoals: 4 });
-      assert.strictEqual(pts, TIER_POINTS.exact * 2);
+    test('goalfest adds 3 points per goal (e.g. 5 goals = +15)', () => {
+      const pts = computeFinalPoints('exact', { ...baseMods, hasGoalFest: true, totalGoals: 5 });
+      assert.strictEqual(pts, TIER_POINTS.exact + (5 * 3));
     });
 
-    test('banker + goalfest (>=4 goals) quadruples points', () => {
+    test('banker + goalfest doubles base AND goalfest points', () => {
       const pts = computeFinalPoints('exact', { ...baseMods, hasBanker: true, hasGoalFest: true, totalGoals: 5 });
-      assert.strictEqual(pts, TIER_POINTS.exact * 4);
+      // Exact (10) + GoalFest (15) = 25. Banker * 2 = 50.
+      assert.strictEqual(pts, (TIER_POINTS.exact + 15) * 2);
+    });
+
+    test('defensive masterclass adds 15 points if clean sheet', () => {
+      const pts = computeFinalPoints('exact', { ...baseMods, hasDefensiveMasterclass: true, hasCleanSheet: true });
+      assert.strictEqual(pts, TIER_POINTS.exact + 15);
+    });
+
+    test('defensive masterclass subtracts 8 points if no clean sheet', () => {
+      const pts = computeFinalPoints('exact', { ...baseMods, hasDefensiveMasterclass: true, hasCleanSheet: false });
+      assert.strictEqual(pts, TIER_POINTS.exact - 8);
     });
 
     test('halftime sub halves points', () => {
@@ -103,7 +122,15 @@ describe('Scoring Engine', () => {
   });
 
   describe('computeFinalPoints — knockout stage', () => {
-    const baseMods = { hasBanker: false, hasGoalFest: false, halftimeSubUsed: false, isRivalBlocked: false, totalGoals: 2 };
+    const baseMods = { 
+      hasBanker: false, 
+      hasGoalFest: false, 
+      hasDefensiveMasterclass: false,
+      halftimeSubUsed: false, 
+      isRivalBlocked: false, 
+      totalGoals: 2,
+      hasCleanSheet: false
+    };
 
     test('knockout exact score awards 20 points', () => {
       const pts = computeFinalPoints('exact', baseMods, 'r32');
@@ -130,9 +157,16 @@ describe('Scoring Engine', () => {
       assert.strictEqual(pts, 40);
     });
 
-    test('knockout goalfest + banker quadruples to 80', () => {
+    test('knockout goalfest + banker', () => {
       const pts = computeFinalPoints('exact', { ...baseMods, hasBanker: true, hasGoalFest: true, totalGoals: 5 }, 'r32');
-      assert.strictEqual(pts, 80);
+      // Exact (20) + GoalFest (15) = 35. Banker * 2 = 70.
+      assert.strictEqual(pts, 70);
+    });
+
+    test('knockout defensive masterclass + banker on failure (can go negative)', () => {
+      const pts = computeFinalPoints('incorrect', { ...baseMods, hasBanker: true, hasDefensiveMasterclass: true, hasCleanSheet: false }, 'sf');
+      // Incorrect (0) - DM (8) = -8. Banker * 2 = -16.
+      assert.strictEqual(pts, -16);
     });
   });
 });

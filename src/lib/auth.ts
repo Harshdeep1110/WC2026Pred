@@ -84,6 +84,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             { userId: user.id, type: 'rival_block', status: 'available' },
             { userId: user.id, type: 'halftime_sub', status: 'available' },
             { userId: user.id, type: 'goalfest', status: 'available' },
+            { userId: user.id, type: 'defensive_masterclass', status: 'available' },
           ],
         });
       }
