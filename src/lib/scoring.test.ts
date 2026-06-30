@@ -112,12 +112,9 @@ describe('Scoring Engine', () => {
       assert.strictEqual(pts, 0);
     });
 
-    test('rival block does NOT zero points if target did not get exact score', () => {
-      // If the target didn't get exact, we don't pass isRivalBlocked=true down to computeFinalPoints, 
-      // or we handle it at the caller level. The function itself zeros it out if the flag is true.
-      // So this test is just verifying the function logic as implemented.
+    test('rival block zeros points if target did not get exact score', () => {
       const pts = computeFinalPoints('result', { ...baseMods, isRivalBlocked: true });
-      assert.strictEqual(pts, TIER_POINTS.result); // Only affects 'exact' tier!
+      assert.strictEqual(pts, 0); // Affects all tiers now
     });
   });
 

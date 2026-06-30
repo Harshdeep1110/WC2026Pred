@@ -120,6 +120,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     // Handle rival block reveal
     if (rivalBlock) {
+      const actorName = (await prisma.user.findUnique({ where: { id: rivalBlock.userId } }))?.displayName;
       if (tier === 'exact') {
         await prisma.activityFeedEvent.create({
           data: {
@@ -127,16 +128,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
             fixtureId,
             actorUserId: rivalBlock.userId,
             targetUserId: pred.userId,
-            message: `💥 REVEAL: ${(await prisma.user.findUnique({ where: { id: rivalBlock.userId } }))?.displayName} blocked ${pred.user.displayName}'s perfect prediction!`,
+            message: `💥 REVEAL: ${actorName} blocked ${pred.user.displayName}'s perfect prediction!`,
             isVisible: true,
           },
         });
       } else {
-        await prisma.activityFeedEvent.updateMany({
-          where: { fixtureId, eventType: 'chip_used', actorUserId: rivalBlock.userId, isVisible: false },
+        await prisma.activityFeedEvent.create({
           data: {
+            eventType: 'rival_block_reveal',
+            fixtureId,
+            actorUserId: rivalBlock.userId,
+            targetUserId: pred.userId,
+            message: `💥 REVEAL: ${actorName} blocked ${pred.user.displayName}'s points!`,
             isVisible: true,
-            message: `${(await prisma.user.findUnique({ where: { id: rivalBlock.userId } }))?.displayName}'s Rival Block had no effect.`,
           },
         });
       }

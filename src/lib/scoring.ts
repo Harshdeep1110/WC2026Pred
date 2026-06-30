@@ -118,8 +118,8 @@ export function computeFinalPoints(tier: ScoringTier, modifiers: ChipModifiers, 
     points = Math.floor(points * 0.5);
   }
 
-  // Rival Block wipe — overrides everything if target got exact score
-  if (modifiers.isRivalBlocked && tier === 'exact') {
+  // Rival Block wipe — overrides everything
+  if (modifiers.isRivalBlocked) {
     return 0;
   }
 
